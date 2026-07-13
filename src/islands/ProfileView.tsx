@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import MovieCard from '../components/MovieCard';
 import { profileStore, resetProfile } from '../stores/profileStore';
-import { getGenres, getMovieDetail, type TMDBMovie } from '../lib/tmdb';
+import { getGenres, getMovieDetail, type TMDBMovie, type TMDBMovieDetail } from '../lib/tmdb';
 import { FAVORITES_CACHE_NAME, FAVORITES_DATA_CACHE_NAME, getCachedFavoriteMovieData } from '../lib/favoritesCache';
 
 export default function ProfileView() {
@@ -40,7 +40,7 @@ export default function ProfileView() {
     ).then((results) => {
       if (cancelled) return;
       const movies = results
-        .filter((r): r is PromiseFulfilledResult<TMDBMovie> => r.status === 'fulfilled')
+        .filter((r): r is PromiseFulfilledResult<TMDBMovieDetail> => r.status === 'fulfilled')
         .map((r) => r.value);
       if (movies.length === 0 && results.length > 0) {
         setFavoritesError(true);

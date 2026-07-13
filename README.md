@@ -20,6 +20,8 @@ Le projet utilise l'adaptateur Vercel (`@astrojs/vercel`) pour supporter le rend
 
 `npm test` exécute la suite Vitest (logique de scoring, requêtes TMDB, stockage).
 
+`npm run typecheck` vérifie les types TypeScript.
+
 ## Sécurité — restriction de la clé TMDB
 
 La clé API TMDB est exposée côté client (obligatoire pour un site 100% serverless). Avant la mise en production :

@@ -82,8 +82,8 @@ registerRoute(
 // Defense-in-depth: catches any navigation that somehow bypasses the route
 // above (e.g. a request whose mode workbox's router classifies differently)
 // and still serves the offline page rather than a native browser error.
-setCatchHandler(async ({ event }) => {
-  if (event.request.mode === 'navigate') {
+setCatchHandler(async ({ request }) => {
+  if (request.mode === 'navigate') {
     return (await matchPrecache('/offline/index.html')) ?? Response.error();
   }
   return Response.error();
