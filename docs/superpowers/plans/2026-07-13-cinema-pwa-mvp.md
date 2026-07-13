@@ -1759,3 +1759,9 @@ git commit -m "docs: add setup, testing and TMDB security instructions"
 ## Follow-up (separate plan, not in this one)
 
 The premium Direction Artistique layer — Adaptive Interface Chroma (ColorThief-driven accent color per movie), glassmorphism refinements, GSAP hero page transitions, Framer Motion liquid-fill favorite button, CSS 3D card tilt, `prefers-reduced-motion`/low-end device downgrade — is intentionally deferred to a second plan once this MVP is verified working end-to-end. This MVP is fully usable and installable on its own.
+
+Also explicitly deferred, identified during the final whole-implementation review (not previously called out, so making it explicit here rather than leaving it as a silent gap):
+- **Dashboard Hero section** (spec §5.1/§3 "Hero section spectaculaire" / video backdrop for the day's trending title) — MVP's home page uses plain scrollable rows only. Bundled with the premium DA pass above, since the spec frames the Hero as part of the "Niveau 1M€" visual ambition (video background, dynamic chroma), not a plain functional requirement.
+- **TV series support** (`tv/[id].astro`, series search/discover) — the cahier des charges covers "films et séries" throughout, but this MVP plan only scoped movies. Adding TV requires mirroring the movie detail/search/recommendation logic for a second TMDB media type; scoped out to keep this MVP plan focused, planned as a follow-up increment once the movie flow is validated in production.
+
+Both are real, acknowledged scope cuts — not oversights — and should be picked up in a dedicated follow-up plan.
