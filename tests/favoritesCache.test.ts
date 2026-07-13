@@ -19,7 +19,7 @@ describe('favoritesCache', () => {
   it('opens the favorites cache and adds the poster URL', async () => {
     await cacheFavoritePoster('/abc.jpg');
     expect(mockCaches.open).toHaveBeenCalledWith(FAVORITES_CACHE_NAME);
-    expect(mockCache.add).toHaveBeenCalledWith('https://image.tmdb.org/t/p/w500/abc.jpg');
+    expect(mockCache.add).toHaveBeenCalledWith('https://image.tmdb.org/t/p/w342/abc.jpg');
   });
 
   it('does not throw when cache.add rejects (offline/blocked)', async () => {
@@ -29,7 +29,7 @@ describe('favoritesCache', () => {
 
   it('deletes the poster URL from the favorites cache', async () => {
     await uncacheFavoritePoster('/abc.jpg');
-    expect(mockCache.delete).toHaveBeenCalledWith('https://image.tmdb.org/t/p/w500/abc.jpg');
+    expect(mockCache.delete).toHaveBeenCalledWith('https://image.tmdb.org/t/p/w342/abc.jpg');
   });
 
   it('does nothing when posterPath is null on uncache', async () => {

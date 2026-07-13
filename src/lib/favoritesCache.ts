@@ -4,7 +4,7 @@ export const FAVORITES_CACHE_NAME = 'tmdb-posters-favorites';
 
 export async function cacheFavoritePoster(posterPath: string | null): Promise<void> {
   if (!posterPath || typeof caches === 'undefined') return;
-  const url = tmdbImageUrl(posterPath, 'w500');
+  const url = tmdbImageUrl(posterPath, 'w342');
   if (!url) return;
   const cache = await caches.open(FAVORITES_CACHE_NAME);
   try {
@@ -16,7 +16,7 @@ export async function cacheFavoritePoster(posterPath: string | null): Promise<vo
 
 export async function uncacheFavoritePoster(posterPath: string | null): Promise<void> {
   if (!posterPath || typeof caches === 'undefined') return;
-  const url = tmdbImageUrl(posterPath, 'w500');
+  const url = tmdbImageUrl(posterPath, 'w342');
   if (!url) return;
   const cache = await caches.open(FAVORITES_CACHE_NAME);
   await cache.delete(url);
