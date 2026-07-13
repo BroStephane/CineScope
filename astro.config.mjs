@@ -59,14 +59,22 @@ const pwaPlugins = VitePWA({
     ],
   },
 });
-const pwaApi = pwaPlugins.find((plugin) => plugin.name === 'vite-plugin-pwa')?.api;
+const pwaPlugin = pwaPlugins.find((plugin) => plugin.name === 'vite-plugin-pwa');
+if (!pwaPlugin?.api) {
+  throw new Error(
+    "vite-plugin-pwa's internal plugin name/API shape changed — the astro:build:done " +
+      'workaround in astro.config.mjs (see comment above) can no longer call generateSW(). ' +
+      'Check the installed vite-plugin-pwa version and update the lookup.'
+  );
+}
+const pwaApi = pwaPlugin.api;
 
 function pwaServiceWorkerIntegration() {
   return {
     name: 'cinescope-pwa-sw',
     hooks: {
       'astro:build:done': async ({ logger }) => {
-        await pwaApi?.generateSW();
+        await pwaApi.generateSW();
         logger.info('PWA service worker (sw.js) generated via vite-plugin-pwa injectManifest.');
       },
     },

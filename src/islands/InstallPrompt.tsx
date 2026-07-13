@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+}
+
 export default function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     function handler(e: Event) {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     }
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
@@ -18,9 +23,8 @@ export default function InstallPrompt() {
     <button
       className="fixed bottom-20 right-4 z-50 min-h-11 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-black shadow-lg md:bottom-4"
       onClick={async () => {
-        const promptEvent = deferredPrompt as any;
-        promptEvent.prompt();
-        await promptEvent.userChoice;
+        await deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
         setDeferredPrompt(null);
       }}
     >
