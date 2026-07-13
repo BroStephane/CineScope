@@ -46,34 +46,45 @@ export function tmdbImageUrl(path: string | null, size = 'w500'): string | null 
   return path ? `${IMAGE_BASE}${size}${path}` : null;
 }
 
-async function tmdbFetch<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
+async function tmdbFetch<T>(
+  endpoint: string,
+  params: Record<string, string> = {},
+  signal?: AbortSignal
+): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`);
   url.searchParams.set('api_key', import.meta.env.PUBLIC_TMDB_API_KEY);
   url.searchParams.set('language', 'fr-FR');
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
   }
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), { signal });
   if (!response.ok) {
-    throw new Error(`TMDB request failed: ${response.status}`);
+    let message = `TMDB request failed: ${response.status}`;
+    try {
+      const body = await response.json();
+      if (body?.status_message) message = body.status_message;
+    } catch {
+      // response body wasn't JSON — keep the generic message
+    }
+    throw new Error(message);
   }
   return response.json() as Promise<T>;
 }
 
-export function getTrending(): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/trending/movie/day');
+export function getTrending(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/trending/movie/day', {}, signal);
 }
 
-export function getUpcoming(): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/movie/upcoming');
+export function getUpcoming(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/upcoming', {}, signal);
 }
 
-export function getMovieDetail(id: number): Promise<TMDBMovieDetail> {
-  return tmdbFetch(`/movie/${id}`, { append_to_response: 'credits,videos' });
+export function getMovieDetail(id: number, signal?: AbortSignal): Promise<TMDBMovieDetail> {
+  return tmdbFetch(`/movie/${id}`, { append_to_response: 'credits,videos' }, signal);
 }
 
-export function searchMovies(query: string): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/search/movie', { query });
+export function searchMovies(query: string, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/search/movie', { query }, signal);
 }
 
 export interface DiscoverParams {
@@ -96,10 +107,13 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   return query;
 }
 
-export function discoverMovies(params: DiscoverParams): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/discover/movie', buildDiscoverQuery(params));
+export function discoverMovies(
+  params: DiscoverParams,
+  signal?: AbortSignal
+): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/discover/movie', buildDiscoverQuery(params), signal);
 }
 
-export function getGenres(): Promise<{ genres: { id: number; name: string }[] }> {
-  return tmdbFetch('/genre/movie/list');
+export function getGenres(signal?: AbortSignal): Promise<{ genres: { id: number; name: string }[] }> {
+  return tmdbFetch('/genre/movie/list', {}, signal);
 }
