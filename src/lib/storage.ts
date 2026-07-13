@@ -16,23 +16,35 @@ function isLocalStorageAvailable(): boolean {
 
 export function getItem(key: string): string | null {
   if (isLocalStorageAvailable()) {
-    return window.localStorage.getItem(key);
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      localStorageAvailable = false;
+    }
   }
   return memoryFallback.get(key) ?? null;
 }
 
 export function setItem(key: string, value: string): void {
   if (isLocalStorageAvailable()) {
-    window.localStorage.setItem(key, value);
-    return;
+    try {
+      window.localStorage.setItem(key, value);
+      return;
+    } catch {
+      localStorageAvailable = false;
+    }
   }
   memoryFallback.set(key, value);
 }
 
 export function removeItem(key: string): void {
   if (isLocalStorageAvailable()) {
-    window.localStorage.removeItem(key);
-    return;
+    try {
+      window.localStorage.removeItem(key);
+      return;
+    } catch {
+      localStorageAvailable = false;
+    }
   }
   memoryFallback.delete(key);
 }
