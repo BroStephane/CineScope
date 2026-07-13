@@ -13,9 +13,3 @@
 :root {
   color-scheme: dark;
 }
-
-body {
-  background-color: var(--color-bg);
-  color: #f4f4f7;
-  font-family: var(--font-body);
-}
