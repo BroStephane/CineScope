@@ -32,6 +32,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
   const director = movie.credits?.crew.find((c) => c.job === 'Director');
   const trailer = movie.videos?.results.find((v) => v.site === 'YouTube' && v.type === 'Trailer');
   const backdrop = tmdbImageUrl(movie.backdrop_path, 'w1280');
+  const genreIds = movie.genres.map((g) => g.id);
 
   function toggleFavorite() {
     if (!movie) return;
@@ -39,11 +40,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
       unfavoriteMovie(movie.id);
       uncacheFavoritePoster(movie.poster_path);
     } else {
-      favoriteMovie(
-        movie.id,
-        movie.genres.map((g) => g.id),
-        director?.id
-      );
+      favoriteMovie(movie.id, genreIds, director?.id);
       cacheFavoritePoster(movie.poster_path);
     }
   }
@@ -63,6 +60,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         <button
           onClick={toggleFavorite}
+          aria-pressed={isFavorite}
           className={`mt-4 min-h-11 rounded-full px-6 py-2 text-sm font-semibold ${
             isFavorite ? 'bg-accent text-black' : 'border border-white/20 text-white'
           }`}
@@ -83,6 +81,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
                       <img
                         src={tmdbImageUrl(member.profile_path, 'w185') ?? ''}
                         alt={member.name}
+                        loading="lazy"
                         className="h-full w-full object-cover"
                       />
                     )}
@@ -96,12 +95,14 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {trailer && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Bande-annonce</h2>
+            <h2 className="mb-3 font-display text-lg">Bande-annonce de {movie.title}</h2>
             <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-xl">
               <iframe
                 className="h-full w-full"
                 src={`https://www.youtube.com/embed/${trailer.key}`}
-                title="Bande-annonce"
+                title={`Bande-annonce de ${movie.title}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
               />
             </div>

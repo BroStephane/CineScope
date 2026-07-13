@@ -8,6 +8,7 @@ export function createEmptyProfile(): ProfileScores {
   return { genres: {}, directors: {}, favorites: [] };
 }
 
+// Intentionally called on every visit, unguarded — views are meant to accumulate as an engagement signal (unlike recordFavorite, a discrete action).
 export function recordView(profile: ProfileScores, genreIds: number[]): ProfileScores {
   const genres = { ...profile.genres };
   for (const id of genreIds) {
