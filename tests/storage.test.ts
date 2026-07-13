@@ -14,10 +14,14 @@ describe('storage', () => {
   });
 
   it('falls back to in-memory storage when localStorage throws', async () => {
-    const original = window.localStorage.setItem;
-    window.localStorage.setItem = () => {
-      throw new DOMException('blocked');
-    };
+    // jsdom's localStorage exposes setItem only via its prototype (Storage.prototype);
+    // vi.spyOn(window.localStorage, 'setItem') silently fails to override it because
+    // defineProperty on the instance doesn't take effect. Spying on the prototype does.
+    const setItemSpy = vi
+      .spyOn(Object.getPrototypeOf(window.localStorage), 'setItem')
+      .mockImplementation(() => {
+        throw new DOMException('blocked');
+      });
 
     const storage = await import('../src/lib/storage');
     storage.setItem('foo', 'bar');
@@ -25,7 +29,7 @@ describe('storage', () => {
     expect(storage.getItem('foo')).toBe('bar');
     expect(storage.isPersistent()).toBe(false);
 
-    window.localStorage.setItem = original;
+    setItemSpy.mockRestore();
   });
 
   it('removeItem clears a key in both modes', async () => {
