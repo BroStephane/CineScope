@@ -7,10 +7,15 @@ interface Genre {
   name: string;
 }
 
+const CURRENT_YEAR = new Date().getFullYear();
+const OLDEST_YEAR = 1970;
+const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - OLDEST_YEAR + 1 }, (_, i) => CURRENT_YEAR - i);
+
 export default function SearchExplorer() {
   const [query, setQuery] = useState('');
   const [genre, setGenre] = useState<number | null>(null);
   const [minRating, setMinRating] = useState(0);
+  const [year, setYear] = useState(0);
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -37,7 +42,11 @@ export default function SearchExplorer() {
     const timeout = setTimeout(() => {
       const request = query.trim()
         ? searchMovies(query.trim())
-        : discoverMovies({ genres: genre ? [genre] : undefined, minRating: minRating || undefined });
+        : discoverMovies({
+            genres: genre ? [genre] : undefined,
+            minRating: minRating || undefined,
+            year: year || undefined,
+          });
       request
         .then((data) => {
           if (!cancelled) setMovies(data.results);
@@ -53,7 +62,7 @@ export default function SearchExplorer() {
       cancelled = true;
       clearTimeout(timeout);
     };
-  }, [query, genre, minRating]);
+  }, [query, genre, minRating, year]);
 
   return (
     <div className="px-4 py-6 md:px-8">
@@ -91,6 +100,18 @@ export default function SearchExplorer() {
           <option value={5}>5+</option>
           <option value={7}>7+</option>
           <option value={8}>8+</option>
+        </select>
+        <select
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+          className="min-h-11 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
+        >
+          <option value={0}>Année</option>
+          {YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
         </select>
       </div>
 
