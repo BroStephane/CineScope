@@ -66,6 +66,7 @@ export default function SearchExplorer() {
 
   return (
     <div className="px-4 py-6 md:px-8">
+      <h1 className="font-display text-2xl">Recherche</h1>
       <label htmlFor="search-input" className="sr-only">
         Rechercher un film
       </label>
@@ -75,7 +76,7 @@ export default function SearchExplorer() {
         placeholder="Rechercher un film…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full rounded-full border border-white/10 bg-surface/80 px-4 py-3 text-sm backdrop-blur placeholder:text-white/40"
+        className="mt-4 w-full rounded-full border border-white/10 bg-surface/80 px-4 py-3 text-sm backdrop-blur placeholder:text-white/40"
       />
 
       <div role="group" aria-label="Filtrer par genre" className="mt-4 flex flex-wrap gap-2">

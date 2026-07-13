@@ -48,6 +48,7 @@ const pwaPlugins = VitePWA({
     name: 'CineScope',
     short_name: 'CineScope',
     description: 'Explorez films et séries, avec vos favoris toujours disponibles hors-ligne.',
+    lang: 'fr',
     theme_color: '#0a0a0f',
     background_color: '#0a0a0f',
     display: 'standalone',
