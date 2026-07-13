@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { getMovieDetail, tmdbImageUrl, type TMDBMovieDetail } from '../lib/tmdb';
 import { profileStore, viewMovie, favoriteMovie, unfavoriteMovie } from '../stores/profileStore';
-import { cacheFavoritePoster, uncacheFavoritePoster } from '../lib/favoritesCache';
+import {
+  cacheFavoritePoster,
+  uncacheFavoritePoster,
+  cacheFavoriteMovieData,
+  uncacheFavoriteMovieData,
+} from '../lib/favoritesCache';
 
 export default function MovieDetail({ movieId }: { movieId: number }) {
   const profile = useStore(profileStore);
@@ -39,9 +44,11 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
     if (isFavorite) {
       unfavoriteMovie(movie.id);
       uncacheFavoritePoster(movie.poster_path);
+      uncacheFavoriteMovieData(movie.id);
     } else {
       favoriteMovie(movie.id, genreIds, director?.id);
       cacheFavoritePoster(movie.poster_path);
+      cacheFavoriteMovieData(movie);
     }
   }
 

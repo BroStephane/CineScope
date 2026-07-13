@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import MovieCard from '../components/MovieCard';
 import { profileStore, resetProfile } from '../stores/profileStore';
 import { getGenres, getMovieDetail, type TMDBMovie } from '../lib/tmdb';
-import { FAVORITES_CACHE_NAME } from '../lib/favoritesCache';
+import { FAVORITES_CACHE_NAME, FAVORITES_DATA_CACHE_NAME, getCachedFavoriteMovieData } from '../lib/favoritesCache';
 
 export default function ProfileView() {
   const profile = useStore(profileStore);
@@ -31,7 +31,13 @@ export default function ProfileView() {
     }
     setFavoriteMovies(null);
     setFavoritesError(false);
-    Promise.allSettled(profile.favorites.map((id) => getMovieDetail(id))).then((results) => {
+    Promise.allSettled(
+      profile.favorites.map(async (id) => {
+        const cached = await getCachedFavoriteMovieData(id);
+        if (cached) return cached;
+        return getMovieDetail(id);
+      })
+    ).then((results) => {
       if (cancelled) return;
       const movies = results
         .filter((r): r is PromiseFulfilledResult<TMDBMovie> => r.status === 'fulfilled')
@@ -55,7 +61,7 @@ export default function ProfileView() {
     if (!confirm('Vider toutes vos données locales (favoris, scores) ?')) return;
     resetProfile();
     if (typeof caches !== 'undefined') {
-      await caches.delete(FAVORITES_CACHE_NAME);
+      await Promise.all([caches.delete(FAVORITES_CACHE_NAME), caches.delete(FAVORITES_DATA_CACHE_NAME)]);
     }
     setResetConfirmed(true);
     setTimeout(() => setResetConfirmed(false), 4000);
