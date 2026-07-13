@@ -21,6 +21,8 @@ export default function MovieRow({ title, fetcher }: Props) {
 
   useEffect(() => {
     let cancelled = false;
+    setMovies(null);
+    setError(false);
     FETCHERS[fetcher]()
       .then((data) => {
         if (!cancelled) setMovies(data.results);
@@ -33,15 +35,19 @@ export default function MovieRow({ title, fetcher }: Props) {
     };
   }, [fetcher]);
 
+  const headingId = `row-${title.replace(/\s+/g, '-').toLowerCase()}`;
+
   return (
-    <section className="px-4 py-6 md:px-8">
-      <h2 className="mb-3 font-display text-xl">{title}</h2>
+    <section aria-labelledby={headingId} className="px-4 py-6 md:px-8">
+      <h2 id={headingId} className="mb-3 font-display text-xl">{title}</h2>
       {error && <p className="text-sm text-white/50">Impossible de charger cette section.</p>}
       {!error && !movies && <p className="text-sm text-white/50">Chargement…</p>}
       {movies && movies.length === 0 && <p className="text-sm text-white/50">Rien à afficher pour le moment.</p>}
       <div className="flex gap-3 overflow-x-auto pb-2">
         {movies?.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} />
+          <div key={movie.id} className="w-32 shrink-0 sm:w-40 md:w-48">
+            <MovieCard movie={movie} />
+          </div>
         ))}
       </div>
     </section>

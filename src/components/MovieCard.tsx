@@ -5,11 +5,11 @@ export default function MovieCard({ movie }: { movie: TMDBMovie }) {
   return (
     <a
       href={`/movie/${movie.id}`}
-      className="block w-32 shrink-0 sm:w-40 md:w-48"
+      className="block"
     >
       <div className="aspect-[2/3] overflow-hidden rounded-xl bg-surface">
         {poster ? (
-          <img src={poster} alt={movie.title} loading="lazy" className="h-full w-full object-cover" />
+          <img src={poster} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center text-xs text-white/50">Pas d'affiche</div>
         )}
