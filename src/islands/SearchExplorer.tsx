@@ -75,7 +75,7 @@ export default function SearchExplorer() {
             key={g.id}
             aria-pressed={genre === g.id}
             onClick={() => setGenre(genre === g.id ? null : g.id)}
-            className={`rounded-full border border-white/10 px-3 py-1.5 text-xs backdrop-blur ${
+            className={`flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1.5 text-xs backdrop-blur ${
               genre === g.id ? 'bg-accent text-black' : 'bg-surface/60 text-white/80'
             }`}
           >
@@ -85,7 +85,7 @@ export default function SearchExplorer() {
         <select
           value={minRating}
           onChange={(e) => setMinRating(Number(e.target.value))}
-          className="rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
+          className="min-h-11 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
         >
           <option value={0}>Note minimum</option>
           <option value={5}>5+</option>
