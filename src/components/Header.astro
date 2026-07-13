@@ -3,7 +3,7 @@ import { navItems } from '../lib/navItems';
 
 const currentPath = Astro.url.pathname;
 ---
-<header class="sticky top-0 z-40 hidden items-center justify-between border-b border-white/10 bg-bg/80 px-8 backdrop-blur md:flex">
+<header class="sticky top-0 z-40 hidden items-center justify-between border-b border-white/10 bg-bg/80 px-8 py-2 backdrop-blur md:flex">
   <a href="/" class="flex min-h-11 items-center font-display text-xl">CineScope</a>
   <nav class="flex gap-6 text-sm text-white/70" aria-label="Navigation principale">
     {navItems.map((item) => (
