@@ -23,4 +23,18 @@ describe('profileStore', () => {
     mod.resetProfile();
     expect(mod.profileStore.get()).toEqual({ genres: {}, directors: {}, favorites: [] });
   });
+
+  it('ignores a corrupted profile in localStorage and starts fresh', async () => {
+    window.localStorage.setItem('cinescope:profile', '{"not":"a valid profile"}');
+    const mod = await import('../src/stores/profileStore');
+    expect(mod.profileStore.get()).toEqual({ genres: {}, directors: {}, favorites: [] });
+  });
+
+  it('does not double-count score when favoriting the same movie twice', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.favoriteMovie(42, [28], 7);
+    mod.favoriteMovie(42, [28], 7);
+    expect(mod.profileStore.get().genres[28]).toBe(5);
+    expect(mod.profileStore.get().favorites).toEqual([42]);
+  });
 });
