@@ -16,6 +16,7 @@ export function recordView(profile: ProfileScores, genreIds: number[]): ProfileS
   return { ...profile, genres };
 }
 
+// Not idempotent for scoring: calling this twice for the same movieId double-counts genre/director points (only the favorites-list entry is deduped). Callers must not invoke this more than once per movie.
 export function recordFavorite(
   profile: ProfileScores,
   movieId: number,
@@ -36,6 +37,7 @@ export function recordFavorite(
   return { ...profile, genres, directors, favorites };
 }
 
+// Intentionally does not reverse the genre/director score contribution — removing a favorite doesn't undo what it taught us about taste.
 export function unfavorite(profile: ProfileScores, movieId: number): ProfileScores {
   return { ...profile, favorites: profile.favorites.filter((id) => id !== movieId) };
 }

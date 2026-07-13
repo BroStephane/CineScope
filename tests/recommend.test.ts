@@ -3,6 +3,7 @@ import {
   createEmptyProfile,
   recordView,
   recordFavorite,
+  unfavorite,
   topGenres,
   excludeFavorites,
 } from '../src/lib/recommend';
@@ -34,6 +35,24 @@ describe('recordFavorite', () => {
     profile = recordFavorite(profile, 100, [28], 500);
     expect(profile.favorites).toEqual([100]);
     expect(profile.genres[28]).toBe(10);
+  });
+});
+
+describe('unfavorite', () => {
+  it('removes the movie id from favorites', () => {
+    const profile = { genres: {}, directors: {}, favorites: [1, 2, 3] };
+    expect(unfavorite(profile, 2).favorites).toEqual([1, 3]);
+  });
+
+  it('is a no-op when the id is not present', () => {
+    const profile = { genres: {}, directors: {}, favorites: [1, 3] };
+    expect(unfavorite(profile, 99).favorites).toEqual([1, 3]);
+  });
+
+  it('does not mutate the input profile', () => {
+    const profile = { genres: {}, directors: {}, favorites: [1, 2] };
+    unfavorite(profile, 1);
+    expect(profile.favorites).toEqual([1, 2]);
   });
 });
 
