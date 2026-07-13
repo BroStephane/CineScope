@@ -1,6 +1,11 @@
 ---
 import Layout from '../components/Layout.astro';
+import MovieRow from '../islands/MovieRow';
+import RecommendedRow from '../islands/RecommendedRow';
 ---
 <Layout title="Accueil">
-  <h1 class="px-6 py-8 font-display text-3xl">CineScope</h1>
+  <h1 class="px-4 pt-8 font-display text-3xl md:px-8">CineScope</h1>
+  <RecommendedRow client:load />
+  <MovieRow client:load title="Tendances du jour" fetcher="trending" />
+  <MovieRow client:load title="Prochainement" fetcher="upcoming" />
 </Layout>
