@@ -16,6 +16,26 @@ const OLDEST_YEAR = 1970;
 const YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - OLDEST_YEAR + 1 }, (_, i) => CURRENT_YEAR - i);
 const MIN_VOTE_COUNT_FOR_RATING_SORT = 300;
 
+const LANGUAGE_OPTIONS = [
+  { code: 'fr', label: 'Français' },
+  { code: 'en', label: 'Anglais' },
+  { code: 'es', label: 'Espagnol' },
+  { code: 'it', label: 'Italien' },
+  { code: 'de', label: 'Allemand' },
+  { code: 'ja', label: 'Japonais' },
+  { code: 'ko', label: 'Coréen' },
+  { code: 'hi', label: 'Hindi' },
+  { code: 'zh', label: 'Mandarin' },
+];
+
+const RUNTIME_OPTIONS = [
+  { value: 'any', label: 'Durée', minRuntime: undefined, maxRuntime: undefined },
+  { value: 'short', label: 'Moins de 90 min', minRuntime: undefined, maxRuntime: 90 },
+  { value: 'medium', label: '90–120 min', minRuntime: 90, maxRuntime: 120 },
+  { value: 'long', label: 'Plus de 120 min', minRuntime: 120, maxRuntime: undefined },
+] as const;
+type RuntimeOption = (typeof RUNTIME_OPTIONS)[number]['value'];
+
 type SortMode = 'tendance' | 'note' | 'pour-vous';
 
 export default function SearchExplorer() {
@@ -24,6 +44,8 @@ export default function SearchExplorer() {
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
   const [minRating, setMinRating] = useState(0);
   const [year, setYear] = useState(0);
+  const [language, setLanguage] = useState('');
+  const [runtime, setRuntime] = useState<RuntimeOption>('any');
   const [sortMode, setSortMode] = useState<SortMode>('tendance');
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [page, setPage] = useState(1);
@@ -52,6 +74,7 @@ export default function SearchExplorer() {
   const isPourVous = !isTextSearch && sortMode === 'pour-vous';
   const preferredGenres = topGenres(profile, 2);
   const pourVousUnavailable = isPourVous && preferredGenres.length === 0;
+  const runtimeRange = RUNTIME_OPTIONS.find((r) => r.value === runtime);
 
   function filterResults(results: TMDBMovie[]) {
     return isPourVous ? excludeWatched(excludeFavorites(results, profile), profile) : results;
@@ -66,6 +89,9 @@ export default function SearchExplorer() {
       year: year || undefined,
       sortBy: sortMode === 'note' ? 'vote_average.desc' : undefined,
       minVoteCount: sortMode === 'note' ? MIN_VOTE_COUNT_FOR_RATING_SORT : undefined,
+      originalLanguage: language || undefined,
+      minRuntime: runtimeRange?.minRuntime,
+      maxRuntime: runtimeRange?.maxRuntime,
     };
     return discoverMovies(params, pageNum);
   }
@@ -103,7 +129,17 @@ export default function SearchExplorer() {
       clearTimeout(timeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, selectedGenreIds.join(','), minRating, year, sortMode, preferredGenres.join(','), pourVousUnavailable]);
+  }, [
+    query,
+    selectedGenreIds.join(','),
+    minRating,
+    year,
+    language,
+    runtime,
+    sortMode,
+    preferredGenres.join(','),
+    pourVousUnavailable,
+  ]);
 
   // Loads the next page when the sentinel at the bottom of the grid scrolls into view.
   useEffect(() => {
@@ -148,13 +184,21 @@ export default function SearchExplorer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, totalPages, pourVousUnavailable]);
 
-  const hasActiveFilters = selectedGenreIds.length > 0 || year !== 0 || minRating !== 0 || sortMode !== 'tendance';
+  const hasActiveFilters =
+    selectedGenreIds.length > 0 ||
+    year !== 0 ||
+    minRating !== 0 ||
+    sortMode !== 'tendance' ||
+    language !== '' ||
+    runtime !== 'any';
 
   function resetFilters() {
     setSelectedGenreIds([]);
     setYear(0);
     setMinRating(0);
     setSortMode('tendance');
+    setLanguage('');
+    setRuntime('any');
   }
 
   function toggleGenre(id: number) {
@@ -245,6 +289,29 @@ export default function SearchExplorer() {
           {YEAR_OPTIONS.map((y) => (
             <option key={y} value={y}>
               {y}
+            </option>
+          ))}
+        </select>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="glass-input min-h-11 rounded-full px-3 py-1.5 text-xs text-white/80"
+        >
+          <option value="">Langue</option>
+          {LANGUAGE_OPTIONS.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={runtime}
+          onChange={(e) => setRuntime(e.target.value as RuntimeOption)}
+          className="glass-input min-h-11 rounded-full px-3 py-1.5 text-xs text-white/80"
+        >
+          {RUNTIME_OPTIONS.map((r) => (
+            <option key={r.value} value={r.value}>
+              {r.label}
             </option>
           ))}
         </select>
