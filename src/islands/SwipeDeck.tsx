@@ -103,6 +103,17 @@ export default function SwipeDeck() {
     setPage(1);
   }
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!topMovie) return;
+      if (e.key === 'ArrowRight') decide('like');
+      else if (e.key === 'ArrowLeft') decide('dislike');
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topMovie]);
+
   return (
     <div className="flex flex-col items-center px-4 py-6 md:px-8">
       <h1 className="font-display text-2xl">Découverte</h1>
@@ -177,6 +188,8 @@ export default function SwipeDeck() {
           <Heart size={24} aria-hidden="true" />
         </button>
       </div>
+
+      <p className="mt-3 hidden text-center text-xs text-white/40 md:block">Utilisez ← / → au clavier</p>
     </div>
   );
 }
