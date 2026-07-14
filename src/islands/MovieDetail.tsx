@@ -64,6 +64,14 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
         <p className="mt-1 text-sm text-white/60">
           {movie.release_date?.slice(0, 4)} · {movie.runtime} min · ⭐ {movie.vote_average.toFixed(1)}
         </p>
+        {director && (
+          <p className="mt-1 text-sm text-white/60">
+            Réalisé par{' '}
+            <a href={`/personne/${director.id}`} className="text-white underline">
+              {director.name}
+            </a>
+          </p>
+        )}
 
         <button
           onClick={toggleFavorite}
@@ -82,7 +90,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
             <h2 className="mb-3 font-display text-lg">Casting</h2>
             <div className="flex gap-4 overflow-x-auto pb-2">
               {movie.credits.cast.slice(0, 10).map((member) => (
-                <div key={member.id} className="w-20 shrink-0 text-center">
+                <a key={member.id} href={`/personne/${member.id}`} className="w-20 shrink-0 text-center">
                   <div className="h-20 w-20 overflow-hidden rounded-full bg-surface">
                     {member.profile_path && (
                       <img
@@ -94,7 +102,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
                     )}
                   </div>
                   <p className="mt-1 truncate text-xs text-white/80">{member.name}</p>
-                </div>
+                </a>
               ))}
             </div>
           </section>

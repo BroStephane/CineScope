@@ -1,0 +1,15 @@
+---
+import Layout from '../../components/Layout.astro';
+import CategoryGrid from '../../islands/CategoryGrid';
+
+export function getStaticPaths() {
+  return ['tendances', 'au-cinema', 'populaires', 'mieux-notes', 'prochainement'].map((category) => ({
+    params: { category },
+  }));
+}
+
+const { category } = Astro.params as { category: string };
+---
+<Layout title="Films">
+  <CategoryGrid client:load category={category} />
+</Layout>

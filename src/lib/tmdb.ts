@@ -37,6 +37,8 @@ export interface TMDBMovieDetail extends TMDBMovie {
 
 export interface TMDBListResponse<T> {
   results: T[];
+  page: number;
+  total_pages: number;
 }
 
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -71,12 +73,24 @@ async function tmdbFetch<T>(
   return response.json() as Promise<T>;
 }
 
-export function getTrending(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/trending/movie/day', {}, signal);
+export function getTrending(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/trending/movie/day', { page: String(page) }, signal);
 }
 
-export function getUpcoming(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/movie/upcoming', {}, signal);
+export function getUpcoming(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/upcoming', { page: String(page) }, signal);
+}
+
+export function getPopular(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/popular', { page: String(page) }, signal);
+}
+
+export function getTopRated(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/top_rated', { page: String(page) }, signal);
+}
+
+export function getNowPlaying(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/now_playing', { page: String(page) }, signal);
 }
 
 export function getMovieDetail(id: number, signal?: AbortSignal): Promise<TMDBMovieDetail> {
@@ -91,10 +105,12 @@ export interface DiscoverParams {
   genres?: number[];
   year?: number;
   minRating?: number;
+  minVoteCount?: number;
+  sortBy?: string;
 }
 
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
-  const query: Record<string, string> = { sort_by: 'popularity.desc' };
+  const query: Record<string, string> = { sort_by: params.sortBy ?? 'popularity.desc' };
   if (params.genres && params.genres.length > 0) {
     query.with_genres = params.genres.join(',');
   }
@@ -104,16 +120,48 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   if (params.minRating) {
     query['vote_average.gte'] = String(params.minRating);
   }
+  if (params.minVoteCount) {
+    query['vote_count.gte'] = String(params.minVoteCount);
+  }
   return query;
 }
 
 export function discoverMovies(
   params: DiscoverParams,
+  page = 1,
   signal?: AbortSignal
 ): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/discover/movie', buildDiscoverQuery(params), signal);
+  return tmdbFetch('/discover/movie', { ...buildDiscoverQuery(params), page: String(page) }, signal);
 }
 
 export function getGenres(signal?: AbortSignal): Promise<{ genres: { id: number; name: string }[] }> {
   return tmdbFetch('/genre/movie/list', {}, signal);
+}
+
+export interface TMDBPersonDetail {
+  id: number;
+  name: string;
+  biography: string;
+  profile_path: string | null;
+}
+
+export interface TMDBPersonCastCredit extends TMDBMovie {
+  character: string;
+}
+
+export interface TMDBPersonCrewCredit extends TMDBMovie {
+  job: string;
+}
+
+export interface TMDBPersonMovieCredits {
+  cast: TMDBPersonCastCredit[];
+  crew: TMDBPersonCrewCredit[];
+}
+
+export function getPersonDetail(id: number, signal?: AbortSignal): Promise<TMDBPersonDetail> {
+  return tmdbFetch(`/person/${id}`, {}, signal);
+}
+
+export function getPersonMovieCredits(id: number, signal?: AbortSignal): Promise<TMDBPersonMovieCredits> {
+  return tmdbFetch(`/person/${id}/movie_credits`, {}, signal);
 }
