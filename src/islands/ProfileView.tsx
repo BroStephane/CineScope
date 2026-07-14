@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useStore } from '@nanostores/react';
+import { Download, Upload } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
-import { profileStore, resetProfile } from '../stores/profileStore';
+import { profileStore, resetProfile, exportProfile, importProfile } from '../stores/profileStore';
 import { getGenres, getMovieDetail, type TMDBMovie, type TMDBMovieDetail } from '../lib/tmdb';
 import { FAVORITES_CACHE_NAME, FAVORITES_DATA_CACHE_NAME, getCachedFavoriteMovieData } from '../lib/favoritesCache';
 
@@ -12,7 +13,12 @@ export default function ProfileView() {
   const [favoritesError, setFavoritesError] = useState(false);
   const [toWatchMovies, setToWatchMovies] = useState<TMDBMovie[] | null>(null);
   const [toWatchError, setToWatchError] = useState(false);
+  const [historyMovies, setHistoryMovies] = useState<TMDBMovie[] | null>(null);
+  const [historyError, setHistoryError] = useState(false);
   const [resetConfirmed, setResetConfirmed] = useState(false);
+  const [importError, setImportError] = useState(false);
+  const [importSuccess, setImportSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getGenres()
@@ -77,6 +83,29 @@ export default function ProfileView() {
     };
   }, [(profile.swipedLiked ?? []).join(',')]);
 
+  useEffect(() => {
+    let cancelled = false;
+    const ids = profile.watched ?? [];
+    if (ids.length === 0) {
+      setHistoryMovies([]);
+      setHistoryError(false);
+      return;
+    }
+    setHistoryMovies(null);
+    setHistoryError(false);
+    Promise.allSettled(ids.map((id) => getMovieDetail(id))).then((results) => {
+      if (cancelled) return;
+      const movies = results
+        .filter((r): r is PromiseFulfilledResult<TMDBMovieDetail> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      if (movies.length === 0 && results.length > 0) setHistoryError(true);
+      setHistoryMovies(movies);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [(profile.watched ?? []).join(',')]);
+
   const sortedGenres = Object.entries(profile.genres)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
@@ -90,6 +119,35 @@ export default function ProfileView() {
     }
     setResetConfirmed(true);
     setTimeout(() => setResetConfirmed(false), 4000);
+  }
+
+  function handleExport() {
+    const json = exportProfile();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cinescope-sauvegarde.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    const text = await file.text();
+    const ok = importProfile(text);
+    setImportError(!ok);
+    setImportSuccess(ok);
+    setTimeout(() => {
+      setImportError(false);
+      setImportSuccess(false);
+    }, 4000);
   }
 
   return (
@@ -147,6 +205,56 @@ export default function ProfileView() {
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-display text-lg">
+          Historique {historyMovies !== null && `(${historyMovies.length})`}
+        </h2>
+        {historyError && <p className="text-sm text-white/50">Impossible de charger votre historique.</p>}
+        {!historyError && historyMovies === null && <p className="text-sm text-white/50">Chargement…</p>}
+        {!historyError && historyMovies?.length === 0 && (
+          <p className="text-sm text-white/50">Marquez des films comme vus depuis leur fiche.</p>
+        )}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {historyMovies?.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-display text-lg">Sauvegarde</h2>
+        <p className="text-sm text-white/50">
+          Vos données restent sur cet appareil. Téléchargez une sauvegarde pour les transférer ou les protéger.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            onClick={handleExport}
+            className="glass-pill flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm text-white"
+          >
+            <Download size={16} aria-hidden="true" />
+            Télécharger une sauvegarde
+          </button>
+          <button
+            onClick={handleImportClick}
+            className="glass-pill flex min-h-11 items-center gap-2 rounded-full px-4 py-2 text-sm text-white"
+          >
+            <Upload size={16} aria-hidden="true" />
+            Restaurer une sauvegarde
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/json"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
+        <p aria-live="polite" className="mt-2 text-xs text-white/50">
+          {importSuccess && 'Sauvegarde restaurée.'}
+          {importError && 'Fichier invalide — impossible de restaurer cette sauvegarde.'}
+        </p>
       </section>
 
       <button
