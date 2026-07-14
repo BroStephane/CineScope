@@ -1,8 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
-import { Star, Check, Plus, Eye } from 'lucide-react';
+import { Star, Check, Plus, Eye, Share2 } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
-import { getMovieDetail, tmdbImageUrl, type TMDBMovieDetail, type TMDBWatchProvider } from '../lib/tmdb';
+import {
+  getMovieDetail,
+  getCollection,
+  tmdbImageUrl,
+  type TMDBMovieDetail,
+  type TMDBWatchProvider,
+  type TMDBMovie,
+} from '../lib/tmdb';
 import {
   profileStore,
   viewMovie,
@@ -10,6 +17,8 @@ import {
   unfavoriteMovie,
   markWatched,
   unmarkWatched,
+  rateMovie,
+  unrateMovie,
 } from '../stores/profileStore';
 import {
   cacheFavoritePoster,
@@ -43,8 +52,11 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
   const profile = useStore(profileStore);
   const [movie, setMovie] = useState<TMDBMovieDetail | null>(null);
   const [error, setError] = useState(false);
+  const [collectionParts, setCollectionParts] = useState<TMDBMovie[]>([]);
+  const [shareConfirmed, setShareConfirmed] = useState(false);
   const isFavorite = movie ? profile.favorites.includes(movie.id) : false;
   const isWatched = movie ? (profile.watched ?? []).includes(movie.id) : false;
+  const rating = movie ? (profile.ratings?.[movie.id] ?? 0) : 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +73,24 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
       cancelled = true;
     };
   }, [movieId]);
+
+  useEffect(() => {
+    if (!movie?.belongs_to_collection) {
+      setCollectionParts([]);
+      return;
+    }
+    let cancelled = false;
+    getCollection(movie.belongs_to_collection.id)
+      .then((result) => {
+        if (!cancelled) setCollectionParts(result.parts.filter((p) => p.id !== movie.id));
+      })
+      .catch(() => {
+        if (!cancelled) setCollectionParts([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [movie?.belongs_to_collection?.id]);
 
   if (error) return <p className="px-4 py-8 text-white/60">Impossible de charger ce film.</p>;
   if (!movie) return <p className="px-4 py-8 text-white/60">Chargement…</p>;
@@ -94,6 +124,35 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
     } else {
       markWatched(movie.id, genreIds);
     }
+  }
+
+  function setRating(value: number) {
+    if (!movie) return;
+    if (rating === value) {
+      unrateMovie(movie.id, genreIds);
+    } else {
+      rateMovie(movie.id, value, genreIds);
+    }
+  }
+
+  async function handleShare() {
+    if (!movie) return;
+    const shareData = {
+      title: movie.title,
+      text: `Découvre ${movie.title} sur CineScope`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // user cancelled the native share sheet — nothing to do
+      }
+      return;
+    }
+    await navigator.clipboard.writeText(window.location.href);
+    setShareConfirmed(true);
+    setTimeout(() => setShareConfirmed(false), 3000);
   }
 
   return (
@@ -140,7 +199,37 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
             {isWatched ? <Check size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
             {isWatched ? 'Déjà vu' : 'Marquer comme vu'}
           </button>
+          <button
+            onClick={handleShare}
+            className="glass-pill flex min-h-11 items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold text-white"
+          >
+            <Share2 size={16} aria-hidden="true" />
+            Partager
+          </button>
         </div>
+
+        <div className="mt-3 flex items-center gap-1" role="group" aria-label="Noter ce film">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <button
+              key={value}
+              onClick={() => setRating(value)}
+              aria-label={`Noter ${value} étoile${value > 1 ? 's' : ''}`}
+              aria-pressed={rating >= value}
+              className="flex min-h-11 min-w-11 items-center justify-center"
+            >
+              <Star
+                size={20}
+                className={rating >= value ? 'fill-current text-accent' : 'text-white/30'}
+                aria-hidden="true"
+              />
+            </button>
+          ))}
+        </div>
+        {shareConfirmed && (
+          <p aria-live="polite" className="mt-1 text-xs text-white/50">
+            Lien copié !
+          </p>
+        )}
 
         <p className="mt-6 max-w-2xl text-white/80">{movie.overview}</p>
 
@@ -180,6 +269,17 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
                   </div>
                   <p className="mt-1 truncate text-xs text-white/80">{member.name}</p>
                 </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {collectionParts.length > 0 && movie.belongs_to_collection && (
+          <section className="mt-8">
+            <h2 className="mb-3 font-display text-lg">Fait partie de : {movie.belongs_to_collection.name}</h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
+              {collectionParts.map((m) => (
+                <MovieCard key={m.id} movie={m} />
               ))}
             </div>
           </section>
