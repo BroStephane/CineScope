@@ -116,7 +116,7 @@ export default function SwipeDeck() {
 
   return (
     <div className="flex flex-col items-center px-4 py-6 md:px-8">
-      <h1 className="font-display text-2xl">Découverte</h1>
+      <h1 className="font-display text-2xl tracking-tight">Découverte</h1>
       <p className="mt-1 text-center text-sm text-white/60">
         Glissez à droite pour l'ajouter à votre liste, à gauche pour passer.
       </p>

@@ -49,7 +49,7 @@ export default function PersonDetail({ personId }: { personId: number }) {
         <div className="h-32 w-32 shrink-0 overflow-hidden rounded-full bg-surface">
           {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}
         </div>
-        <h1 className="font-display text-2xl">{person.name}</h1>
+        <h1 className="font-display text-2xl tracking-tight">{person.name}</h1>
       </div>
 
       {person.biography && (
@@ -65,7 +65,7 @@ export default function PersonDetail({ personId }: { personId: number }) {
 
       {directed.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 font-display text-lg">Réalisateur</h2>
+          <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Réalisateur</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
             {directed.map((movie) => (
               <MovieCard key={movie.id} movie={movie} />
@@ -76,7 +76,7 @@ export default function PersonDetail({ personId }: { personId: number }) {
 
       {acted.length > 0 && (
         <section className="mt-8">
-          <h2 className="mb-3 font-display text-lg">Acteur</h2>
+          <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Acteur</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
             {acted.map((movie) => (
               <MovieCard key={movie.id} movie={movie} />

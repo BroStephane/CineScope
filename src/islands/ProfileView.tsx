@@ -155,10 +155,10 @@ export default function ProfileView() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <h1 className="font-display text-2xl">Mon Profil</h1>
+      <h1 className="font-display text-2xl tracking-tight">Mon Profil</h1>
 
       <section className="mt-6">
-        <h2 className="mb-3 font-display text-lg">Genres préférés</h2>
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Genres préférés</h2>
         {ratingCount > 0 && (
           <p className="mb-3 flex items-center gap-1 text-xs text-white/50">
             {ratingCount} film{ratingCount > 1 ? 's' : ''} noté{ratingCount > 1 ? 's' : ''}, moyenne{' '}
@@ -186,7 +186,7 @@ export default function ProfileView() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-lg">
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
           Mes favoris {favoriteMovies !== null && `(${favoriteMovies.length})`}
         </h2>
         {favoritesError && <p className="text-sm text-white/50">Impossible de charger vos favoris.</p>}
@@ -202,7 +202,7 @@ export default function ProfileView() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-lg">
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
           À voir {toWatchMovies !== null && `(${toWatchMovies.length})`}
         </h2>
         {toWatchError && <p className="text-sm text-white/50">Impossible de charger votre liste.</p>}
@@ -218,7 +218,7 @@ export default function ProfileView() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-lg">
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
           Historique {historyMovies !== null && `(${historyMovies.length})`}
         </h2>
         {historyError && <p className="text-sm text-white/50">Impossible de charger votre historique.</p>}
@@ -234,7 +234,7 @@ export default function ProfileView() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-lg">Sauvegarde</h2>
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Sauvegarde</h2>
         <p className="text-sm text-white/50">
           Vos données restent sur cet appareil. Téléchargez une sauvegarde pour les transférer ou les protéger.
         </p>

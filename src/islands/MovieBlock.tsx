@@ -47,11 +47,16 @@ export default function MovieBlock({ title, fetcher, seeAllHref }: Props) {
   return (
     <section aria-labelledby={headingId} className="px-4 py-6 md:px-8">
       <div className="mb-3 flex items-center justify-between">
-        <h2 id={headingId} className="font-display text-xl">{title}</h2>
+        <h2 id={headingId} className="font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
+          {title}
+        </h2>
         {seeAllHref && (
-          <a href={seeAllHref} className="flex min-h-11 items-center gap-0.5 text-sm text-white/60 hover:text-white">
+          <a
+            href={seeAllHref}
+            className="flex min-h-11 items-center gap-0.5 text-xs font-semibold uppercase tracking-wide text-white/50 hover:text-white"
+          >
             Voir tout
-            <ChevronRight size={16} aria-hidden="true" />
+            <ChevronRight size={14} aria-hidden="true" />
           </a>
         )}
       </div>

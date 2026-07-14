@@ -37,7 +37,9 @@ export default function RecommendedRow() {
 
   return (
     <section aria-labelledby="recommended-heading" className="px-4 py-6 md:px-8">
-      <h2 id="recommended-heading" className="mb-3 font-display text-xl">Recommandé pour vous</h2>
+      <h2 id="recommended-heading" className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
+        Recommandé pour vous
+      </h2>
       {error && <p className="text-sm text-white/50">Impossible de charger cette section.</p>}
       {!error && !movies && <p className="text-sm text-white/50">Chargement…</p>}
       {movies && movies.length === 0 && <p className="text-sm text-white/50">Rien à afficher pour le moment.</p>}

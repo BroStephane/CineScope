@@ -150,7 +150,7 @@ export default function TopsExplorer() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <h1 className="font-display text-2xl">Tops</h1>
+      <h1 className="font-display text-2xl tracking-tight">Tops</h1>
 
       <div role="tablist" aria-label="Choisir un top" className="mt-4 flex flex-wrap gap-2">
         {TABS.map((t) => (

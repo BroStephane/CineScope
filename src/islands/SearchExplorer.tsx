@@ -207,7 +207,7 @@ export default function SearchExplorer() {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <h1 className="font-display text-2xl">Recherche</h1>
+      <h1 className="font-display text-2xl tracking-tight">Recherche</h1>
       <label htmlFor="search-input" className="sr-only">
         Rechercher un film
       </label>

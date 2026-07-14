@@ -105,7 +105,7 @@ export default function CategoryGrid({ category }: { category: string }) {
 
   return (
     <div className="px-4 py-6 md:px-8">
-      <h1 className="font-display text-2xl">{entry.title}</h1>
+      <h1 className="font-display text-2xl tracking-tight">{entry.title}</h1>
       {error && <p className="mt-6 text-sm text-white/50">Impossible de charger cette section.</p>}
       {!error && loading && movies.length === 0 && <p className="mt-6 text-sm text-white/50">Chargement…</p>}
       {!error && !loading && movies.length === 0 && (

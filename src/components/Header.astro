@@ -1,11 +1,14 @@
 ---
 import { navItems } from '../lib/navItems';
 import { navIcons } from '../lib/navIcons';
+import Logo from './Logo.astro';
 
 const currentPath = Astro.url.pathname;
 ---
 <header class="glass-strong sticky top-0 z-40 hidden items-center justify-between px-8 py-2 md:flex">
-  <a href="/" class="flex min-h-11 items-center font-display text-xl">CineScope</a>
+  <a href="/" class="flex min-h-11 items-center">
+    <Logo class="text-xl" />
+  </a>
   <nav class="flex gap-2 text-sm text-white/70" aria-label="Navigation principale">
     {navItems.map((item) => {
       const Icon = navIcons[item.icon];

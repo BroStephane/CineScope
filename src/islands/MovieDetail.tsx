@@ -163,7 +163,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
         </div>
       )}
       <div className={`glass relative z-10 rounded-t-3xl px-4 py-6 md:px-8 ${backdrop ? '-mt-12 md:-mt-16' : ''}`}>
-        <h1 className="font-display text-2xl md:text-4xl">{movie.title}</h1>
+        <h1 className="font-display text-2xl tracking-tight md:text-4xl">{movie.title}</h1>
         <p className="mt-1 flex items-center gap-1 text-sm text-white/60">
           {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
           <Star size={14} className="fill-current text-accent" aria-hidden="true" />
@@ -235,7 +235,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {hasWatchProviders && watchProviders && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Où regarder</h2>
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Où regarder</h2>
             {watchProviders.flatrate && watchProviders.flatrate.length > 0 && (
               <ProviderGroup label="Abonnement" providers={watchProviders.flatrate} />
             )}
@@ -253,7 +253,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {movie.credits && movie.credits.cast.length > 0 && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Casting</h2>
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Casting</h2>
             <div className="flex gap-4 overflow-x-auto pb-2">
               {movie.credits.cast.slice(0, 10).map((member) => (
                 <a key={member.id} href={`/personne/${member.id}`} className="w-20 shrink-0 text-center">
@@ -276,7 +276,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {collectionParts.length > 0 && movie.belongs_to_collection && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Fait partie de : {movie.belongs_to_collection.name}</h2>
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Fait partie de : {movie.belongs_to_collection.name}</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
               {collectionParts.map((m) => (
                 <MovieCard key={m.id} movie={m} />
@@ -287,7 +287,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {similar.length > 0 && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Films similaires</h2>
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Films similaires</h2>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
               {similar.slice(0, 10).map((m) => (
                 <MovieCard key={m.id} movie={m} />
@@ -298,7 +298,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
         {trailer && (
           <section className="mt-8">
-            <h2 className="mb-3 font-display text-lg">Bande-annonce de {movie.title}</h2>
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Bande-annonce de {movie.title}</h2>
             <div className="aspect-video w-full max-w-2xl overflow-hidden rounded-xl">
               <iframe
                 className="h-full w-full"
