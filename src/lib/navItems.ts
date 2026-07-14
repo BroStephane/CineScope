@@ -1,12 +1,15 @@
+export type NavIconKey = 'home' | 'search' | 'compass' | 'trophy' | 'user';
+
 export interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: NavIconKey;
 }
 
 export const navItems: NavItem[] = [
-  { href: '/', label: 'Accueil', icon: '🏠' },
-  { href: '/search', label: 'Recherche', icon: '🔍' },
-  { href: '/tops', label: 'Tops', icon: '🏆' },
-  { href: '/profile', label: 'Profil', icon: '👤' },
+  { href: '/', label: 'Accueil', icon: 'home' },
+  { href: '/search', label: 'Recherche', icon: 'search' },
+  { href: '/decouverte', label: 'Découverte', icon: 'compass' },
+  { href: '/tops', label: 'Tops', icon: 'trophy' },
+  { href: '/profile', label: 'Profil', icon: 'user' },
 ];
