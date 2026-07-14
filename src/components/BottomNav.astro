@@ -1,15 +1,20 @@
 ---
 import { navItems } from '../lib/navItems';
 import { navIcons } from '../lib/navIcons';
+import MobileMoreMenu from '../islands/MobileMoreMenu';
 
 const currentPath = Astro.url.pathname;
+const primaryItems = navItems.filter((item) => item.mobilePriority === 'primary');
+const secondaryItems = navItems.filter((item) => item.mobilePriority === 'secondary');
+// +1 slot for the "Plus" hamburger button that holds the secondary items.
+const slotCount = primaryItems.length + 1;
 ---
 <nav
   class="glass-strong fixed bottom-0 left-0 right-0 z-40 grid py-2 md:hidden"
-  style={`padding-bottom: env(safe-area-inset-bottom); grid-template-columns: repeat(${navItems.length}, minmax(0, 1fr))`}
+  style={`padding-bottom: env(safe-area-inset-bottom); grid-template-columns: repeat(${slotCount}, minmax(0, 1fr))`}
   aria-label="Navigation mobile"
 >
-  {navItems.map((item) => {
+  {primaryItems.map((item) => {
     const Icon = navIcons[item.icon];
     const active = currentPath === item.href;
     return (
@@ -25,4 +30,5 @@ const currentPath = Astro.url.pathname;
       </a>
     );
   })}
+  <MobileMoreMenu client:load items={secondaryItems} currentPath={currentPath} />
 </nav>
