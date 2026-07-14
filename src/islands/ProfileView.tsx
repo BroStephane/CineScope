@@ -10,6 +10,8 @@ export default function ProfileView() {
   const [genreNames, setGenreNames] = useState<Record<number, string>>({});
   const [favoriteMovies, setFavoriteMovies] = useState<TMDBMovie[] | null>(null);
   const [favoritesError, setFavoritesError] = useState(false);
+  const [toWatchMovies, setToWatchMovies] = useState<TMDBMovie[] | null>(null);
+  const [toWatchError, setToWatchError] = useState(false);
   const [resetConfirmed, setResetConfirmed] = useState(false);
 
   useEffect(() => {
@@ -51,6 +53,29 @@ export default function ProfileView() {
       cancelled = true;
     };
   }, [profile.favorites.join(',')]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const ids = profile.swipedLiked ?? [];
+    if (ids.length === 0) {
+      setToWatchMovies([]);
+      setToWatchError(false);
+      return;
+    }
+    setToWatchMovies(null);
+    setToWatchError(false);
+    Promise.allSettled(ids.map((id) => getMovieDetail(id))).then((results) => {
+      if (cancelled) return;
+      const movies = results
+        .filter((r): r is PromiseFulfilledResult<TMDBMovieDetail> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      if (movies.length === 0 && results.length > 0) setToWatchError(true);
+      setToWatchMovies(movies);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [(profile.swipedLiked ?? []).join(',')]);
 
   const sortedGenres = Object.entries(profile.genres)
     .sort(([, a], [, b]) => b - a)
@@ -103,6 +128,22 @@ export default function ProfileView() {
         )}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
           {favoriteMovies?.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-display text-lg">
+          À voir {toWatchMovies !== null && `(${toWatchMovies.length})`}
+        </h2>
+        {toWatchError && <p className="text-sm text-white/50">Impossible de charger votre liste.</p>}
+        {!toWatchError && toWatchMovies === null && <p className="text-sm text-white/50">Chargement…</p>}
+        {!toWatchError && toWatchMovies?.length === 0 && (
+          <p className="text-sm text-white/50">Swipez des films dans Découverte pour construire votre liste.</p>
+        )}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {toWatchMovies?.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
