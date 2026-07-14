@@ -97,8 +97,8 @@ export function getMovieDetail(id: number, signal?: AbortSignal): Promise<TMDBMo
   return tmdbFetch(`/movie/${id}`, { append_to_response: 'credits,videos' }, signal);
 }
 
-export function searchMovies(query: string, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/search/movie', { query }, signal);
+export function searchMovies(query: string, page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/search/movie', { query, page: String(page) }, signal);
 }
 
 export interface DiscoverParams {

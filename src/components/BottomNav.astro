@@ -1,5 +1,6 @@
 ---
 import { navItems } from '../lib/navItems';
+import { navIcons } from '../lib/navIcons';
 
 const currentPath = Astro.url.pathname;
 ---
@@ -8,16 +9,19 @@ const currentPath = Astro.url.pathname;
   style="padding-bottom: env(safe-area-inset-bottom)"
   aria-label="Navigation mobile"
 >
-  {navItems.map((item) => (
-    <a
-      href={item.href}
-      class={`flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-xs ${
-        currentPath === item.href ? 'text-white' : 'text-white/70'
-      }`}
-      aria-current={currentPath === item.href ? 'page' : undefined}
-    >
-      <span aria-hidden="true">{item.icon}</span>
-      {item.label}
-    </a>
-  ))}
+  {navItems.map((item) => {
+    const Icon = navIcons[item.icon];
+    return (
+      <a
+        href={item.href}
+        class={`flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-[10px] ${
+          currentPath === item.href ? 'text-white' : 'text-white/70'
+        }`}
+        aria-current={currentPath === item.href ? 'page' : undefined}
+      >
+        <Icon size={20} aria-hidden="true" />
+        {item.label}
+      </a>
+    );
+  })}
 </nav>

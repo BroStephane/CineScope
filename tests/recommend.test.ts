@@ -6,6 +6,10 @@ import {
   unfavorite,
   topGenres,
   excludeFavorites,
+  recordSwipeLike,
+  recordSwipeDislike,
+  resetSwipeDislikes,
+  excludeSwiped,
 } from '../src/lib/recommend';
 
 describe('recordView', () => {
@@ -72,5 +76,59 @@ describe('excludeFavorites', () => {
     const profile = { genres: {}, directors: {}, favorites: [1, 3] };
     const movies = [{ id: 1 }, { id: 2 }, { id: 3 }];
     expect(excludeFavorites(movies, profile)).toEqual([{ id: 2 }]);
+  });
+});
+
+describe('recordSwipeLike', () => {
+  it('adds 2 points per genre and appends the movie id to swipedLiked', () => {
+    const profile = recordSwipeLike(createEmptyProfile(), 200, [28, 12]);
+    expect(profile.genres).toEqual({ 28: 2, 12: 2 });
+    expect(profile.swipedLiked).toEqual([200]);
+  });
+
+  it('does not duplicate a movie id already swiped-liked', () => {
+    let profile = recordSwipeLike(createEmptyProfile(), 200, [28]);
+    profile = recordSwipeLike(profile, 200, [28]);
+    expect(profile.swipedLiked).toEqual([200]);
+    expect(profile.genres[28]).toBe(4);
+  });
+});
+
+describe('recordSwipeDislike', () => {
+  it('appends the movie id to swipedDisliked without touching scores', () => {
+    const profile = recordSwipeDislike(createEmptyProfile(), 300);
+    expect(profile.swipedDisliked).toEqual([300]);
+    expect(profile.genres).toEqual({});
+  });
+
+  it('does not duplicate a movie id already swiped-disliked', () => {
+    let profile = recordSwipeDislike(createEmptyProfile(), 300);
+    profile = recordSwipeDislike(profile, 300);
+    expect(profile.swipedDisliked).toEqual([300]);
+  });
+});
+
+describe('resetSwipeDislikes', () => {
+  it('clears swipedDisliked but keeps swipedLiked and scores', () => {
+    let profile = recordSwipeLike(createEmptyProfile(), 1, [28]);
+    profile = recordSwipeDislike(profile, 2);
+    profile = resetSwipeDislikes(profile);
+    expect(profile.swipedDisliked).toEqual([]);
+    expect(profile.swipedLiked).toEqual([1]);
+    expect(profile.genres).toEqual({ 28: 2 });
+  });
+});
+
+describe('excludeSwiped', () => {
+  it('filters out favorited, swiped-liked and swiped-disliked ids', () => {
+    const profile = { genres: {}, directors: {}, favorites: [1], swipedLiked: [2], swipedDisliked: [3] };
+    const movies = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+    expect(excludeSwiped(movies, profile)).toEqual([{ id: 4 }]);
+  });
+
+  it('treats missing swipedLiked/swipedDisliked as empty', () => {
+    const profile = { genres: {}, directors: {}, favorites: [1] };
+    const movies = [{ id: 1 }, { id: 2 }];
+    expect(excludeSwiped(movies, profile)).toEqual([{ id: 2 }]);
   });
 });

@@ -1,14 +1,14 @@
 ---
 import Layout from '../components/Layout.astro';
-import MovieRow from '../islands/MovieRow';
+import MovieBlock from '../islands/MovieBlock';
 import RecommendedRow from '../islands/RecommendedRow';
 ---
 <Layout title="Accueil">
   <h1 class="px-4 pt-8 font-display text-3xl md:px-8">CineScope</h1>
   <RecommendedRow client:load />
-  <MovieRow client:load title="Tendances du jour" fetcher="trending" seeAllHref="/films/tendances" />
-  <MovieRow client:load title="Au cinéma" fetcher="nowPlaying" seeAllHref="/films/au-cinema" />
-  <MovieRow client:load title="Populaires" fetcher="popular" seeAllHref="/films/populaires" />
-  <MovieRow client:load title="Mieux notés" fetcher="topRated" seeAllHref="/films/mieux-notes" />
-  <MovieRow client:load title="Prochainement" fetcher="upcoming" seeAllHref="/films/prochainement" />
+  <MovieBlock client:load title="Tendances du jour" fetcher="trending" seeAllHref="/films/tendances" />
+  <MovieBlock client:load title="Au cinéma" fetcher="nowPlaying" seeAllHref="/films/au-cinema" />
+  <MovieBlock client:load title="Populaires" fetcher="popular" seeAllHref="/films/populaires" />
+  <MovieBlock client:load title="Mieux notés" fetcher="topRated" seeAllHref="/films/mieux-notes" />
+  <MovieBlock client:load title="Prochainement" fetcher="upcoming" seeAllHref="/films/prochainement" />
 </Layout>

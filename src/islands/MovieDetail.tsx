@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
+import { Star, Check, Plus } from 'lucide-react';
 import { getMovieDetail, tmdbImageUrl, type TMDBMovieDetail } from '../lib/tmdb';
 import { profileStore, viewMovie, favoriteMovie, unfavoriteMovie } from '../stores/profileStore';
 import {
@@ -61,8 +62,10 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
       )}
       <div className="px-4 py-6 md:px-8">
         <h1 className="font-display text-2xl md:text-4xl">{movie.title}</h1>
-        <p className="mt-1 text-sm text-white/60">
-          {movie.release_date?.slice(0, 4)} · {movie.runtime} min · ⭐ {movie.vote_average.toFixed(1)}
+        <p className="mt-1 flex items-center gap-1 text-sm text-white/60">
+          {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
+          <Star size={14} className="fill-current text-accent" aria-hidden="true" />
+          {movie.vote_average.toFixed(1)}
         </p>
         {director && (
           <p className="mt-1 text-sm text-white/60">
@@ -76,11 +79,12 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
         <button
           onClick={toggleFavorite}
           aria-pressed={isFavorite}
-          className={`mt-4 min-h-11 rounded-full px-6 py-2 text-sm font-semibold ${
+          className={`mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold ${
             isFavorite ? 'bg-accent text-black' : 'border border-white/20 text-white'
           }`}
         >
-          {isFavorite ? '✓ Dans mes favoris' : '+ Ajouter aux favoris'}
+          {isFavorite ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
+          {isFavorite ? 'Dans mes favoris' : 'Ajouter aux favoris'}
         </button>
 
         <p className="mt-6 max-w-2xl text-white/80">{movie.overview}</p>
