@@ -37,6 +37,8 @@ export interface TMDBMovieDetail extends TMDBMovie {
 
 export interface TMDBListResponse<T> {
   results: T[];
+  page: number;
+  total_pages: number;
 }
 
 const BASE_URL = 'https://api.themoviedb.org/3';
@@ -71,12 +73,24 @@ async function tmdbFetch<T>(
   return response.json() as Promise<T>;
 }
 
-export function getTrending(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/trending/movie/day', {}, signal);
+export function getTrending(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/trending/movie/day', { page: String(page) }, signal);
 }
 
-export function getUpcoming(signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/movie/upcoming', {}, signal);
+export function getUpcoming(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/upcoming', { page: String(page) }, signal);
+}
+
+export function getPopular(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/popular', { page: String(page) }, signal);
+}
+
+export function getTopRated(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/top_rated', { page: String(page) }, signal);
+}
+
+export function getNowPlaying(page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
+  return tmdbFetch('/movie/now_playing', { page: String(page) }, signal);
 }
 
 export function getMovieDetail(id: number, signal?: AbortSignal): Promise<TMDBMovieDetail> {
