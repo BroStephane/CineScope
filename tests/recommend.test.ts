@@ -10,6 +10,9 @@ import {
   recordSwipeDislike,
   resetSwipeDislikes,
   excludeSwiped,
+  recordWatched,
+  unwatch,
+  excludeWatched,
 } from '../src/lib/recommend';
 
 describe('recordView', () => {
@@ -130,5 +133,48 @@ describe('excludeSwiped', () => {
     const profile = { genres: {}, directors: {}, favorites: [1] };
     const movies = [{ id: 1 }, { id: 2 }];
     expect(excludeSwiped(movies, profile)).toEqual([{ id: 2 }]);
+  });
+});
+
+describe('recordWatched', () => {
+  it('adds 3 points per genre and appends the movie id to watched', () => {
+    const profile = recordWatched(createEmptyProfile(), 400, [28, 12]);
+    expect(profile.genres).toEqual({ 28: 3, 12: 3 });
+    expect(profile.watched).toEqual([400]);
+  });
+
+  it('does not duplicate a movie id already watched', () => {
+    let profile = recordWatched(createEmptyProfile(), 400, [28]);
+    profile = recordWatched(profile, 400, [28]);
+    expect(profile.watched).toEqual([400]);
+    expect(profile.genres[28]).toBe(6);
+  });
+});
+
+describe('unwatch', () => {
+  it('removes the movie id from watched without touching scores', () => {
+    let profile = recordWatched(createEmptyProfile(), 400, [28]);
+    profile = unwatch(profile, 400);
+    expect(profile.watched).toEqual([]);
+    expect(profile.genres[28]).toBe(3);
+  });
+
+  it('is a no-op when the id is not present', () => {
+    const profile = { genres: {}, directors: {}, favorites: [], watched: [1, 3] };
+    expect(unwatch(profile, 99).watched).toEqual([1, 3]);
+  });
+});
+
+describe('excludeWatched', () => {
+  it('filters out movies whose id is already watched', () => {
+    const profile = { genres: {}, directors: {}, favorites: [], watched: [2] };
+    const movies = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    expect(excludeWatched(movies, profile)).toEqual([{ id: 1 }, { id: 3 }]);
+  });
+
+  it('treats a missing watched list as empty', () => {
+    const profile = { genres: {}, directors: {}, favorites: [] };
+    const movies = [{ id: 1 }];
+    expect(excludeWatched(movies, profile)).toEqual([{ id: 1 }]);
   });
 });

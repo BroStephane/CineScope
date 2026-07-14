@@ -4,10 +4,11 @@ export interface ProfileScores {
   favorites: number[];
   swipedLiked?: number[];
   swipedDisliked?: number[];
+  watched?: number[];
 }
 
 export function createEmptyProfile(): ProfileScores {
-  return { genres: {}, directors: {}, favorites: [], swipedLiked: [], swipedDisliked: [] };
+  return { genres: {}, directors: {}, favorites: [], swipedLiked: [], swipedDisliked: [], watched: [] };
 }
 
 // Intentionally called on every visit, unguarded — views are meant to accumulate as an engagement signal (unlike recordFavorite, a discrete action).
@@ -93,4 +94,29 @@ export function excludeSwiped<T extends { id: number }>(movies: T[], profile: Pr
     ...(profile.swipedDisliked ?? []),
   ]);
   return movies.filter((movie) => !excluded.has(movie.id));
+}
+
+const WATCHED_GENRE_POINTS = 3;
+
+// Between the weight of a simple detail-page view (+1, automatic on every
+// visit) and an explicit favorite (+5) — marking a movie watched is a
+// deliberate action but a lighter taste signal than favoriting it.
+export function recordWatched(profile: ProfileScores, movieId: number, genreIds: number[]): ProfileScores {
+  const genres = { ...profile.genres };
+  for (const id of genreIds) {
+    genres[id] = (genres[id] ?? 0) + WATCHED_GENRE_POINTS;
+  }
+  const watched = profile.watched ?? [];
+  const nextWatched = watched.includes(movieId) ? watched : [...watched, movieId];
+  return { ...profile, genres, watched: nextWatched };
+}
+
+// Same rationale as unfavorite — doesn't reverse the genre score contribution.
+export function unwatch(profile: ProfileScores, movieId: number): ProfileScores {
+  return { ...profile, watched: (profile.watched ?? []).filter((id) => id !== movieId) };
+}
+
+export function excludeWatched<T extends { id: number }>(movies: T[], profile: ProfileScores): T[] {
+  const watched = profile.watched ?? [];
+  return movies.filter((movie) => !watched.includes(movie.id));
 }
