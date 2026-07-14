@@ -3,7 +3,7 @@ import { useStore } from '@nanostores/react';
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
 import { Heart, X, Star } from 'lucide-react';
 import { discoverMovies, getPopular, tmdbImageUrl, type TMDBMovie } from '../lib/tmdb';
-import { topGenres, excludeSwiped } from '../lib/recommend';
+import { topGenres, excludeSwiped, excludeWatched } from '../lib/recommend';
 import { profileStore, swipeLikeMovie, swipeDislikeMovie, clearSwipeDislikes } from '../stores/profileStore';
 
 const MAX_SWIPE_PAGES = 20;
@@ -59,7 +59,7 @@ export default function SwipeDeck() {
     request
       .then((result) => {
         if (cancelled) return;
-        const filtered = excludeSwiped(result.results, profile);
+        const filtered = excludeWatched(excludeSwiped(result.results, profile), profile);
         setDeck((prev) => [...prev, ...filtered]);
         setPage((p) => p + 1);
       })
