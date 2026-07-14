@@ -10,8 +10,8 @@ const secondaryItems = navItems.filter((item) => item.mobilePriority === 'second
 const slotCount = primaryItems.length + 1;
 ---
 <nav
-  class="glass-strong fixed bottom-0 left-0 right-0 z-40 grid py-2 md:hidden"
-  style={`padding-bottom: env(safe-area-inset-bottom); grid-template-columns: repeat(${slotCount}, minmax(0, 1fr))`}
+  class="glass-strong fixed bottom-0 left-0 right-0 z-40 grid py-3 md:hidden"
+  style={`padding-bottom: calc(0.5rem + env(safe-area-inset-bottom)); grid-template-columns: repeat(${slotCount}, minmax(0, 1fr))`}
   aria-label="Navigation mobile"
 >
   {primaryItems.map((item) => {
@@ -20,12 +20,19 @@ const slotCount = primaryItems.length + 1;
     return (
       <a
         href={item.href}
-        class={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1 text-[9px] ${
+        class={`relative flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] transition-all duration-300 active:scale-90 ${
           active ? 'glass-pill glass-pill-active text-white' : 'text-white/70'
         }`}
         aria-current={active ? 'page' : undefined}
       >
-        <Icon size={20} aria-hidden="true" />
+        {active && (
+          <span class="absolute -top-1 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-accent shadow-[0_0_8px_var(--color-accent)]" />
+        )}
+        <Icon
+          size={24}
+          className={`transition-transform duration-300 ${active ? 'scale-110' : ''}`}
+          aria-hidden="true"
+        />
         <span class="w-full truncate text-center">{item.label}</span>
       </a>
     );
