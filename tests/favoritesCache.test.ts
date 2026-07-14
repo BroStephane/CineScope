@@ -20,6 +20,7 @@ const sampleMovie: TMDBMovieDetail = {
   vote_average: 7.5,
   runtime: 120,
   genres: [{ id: 1, name: 'Action' }],
+  belongs_to_collection: null,
 };
 
 describe('favoritesCache', () => {

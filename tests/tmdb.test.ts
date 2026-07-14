@@ -40,6 +40,15 @@ describe('buildDiscoverQuery', () => {
       with_genres: '28|12',
     });
   });
+
+  it('adds original language and runtime range filters', () => {
+    expect(buildDiscoverQuery({ originalLanguage: 'ja', minRuntime: 90, maxRuntime: 120 })).toEqual({
+      sort_by: 'popularity.desc',
+      with_original_language: 'ja',
+      'with_runtime.gte': '90',
+      'with_runtime.lte': '120',
+    });
+  });
 });
 
 describe('tmdbImageUrl', () => {

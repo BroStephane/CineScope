@@ -41,6 +41,13 @@ export interface TMDBWatchProviderRegion {
   buy?: TMDBWatchProvider[];
 }
 
+export interface TMDBCollectionSummary {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+}
+
 export interface TMDBMovieDetail extends TMDBMovie {
   runtime: number;
   genres: { id: number; name: string }[];
@@ -48,6 +55,7 @@ export interface TMDBMovieDetail extends TMDBMovie {
   videos?: { results: TMDBVideo[] };
   similar?: TMDBListResponse<TMDBMovie>;
   'watch/providers'?: { results: Record<string, TMDBWatchProviderRegion> };
+  belongs_to_collection: TMDBCollectionSummary | null;
 }
 
 export interface TMDBListResponse<T> {
@@ -123,6 +131,9 @@ export interface DiscoverParams {
   minRating?: number;
   minVoteCount?: number;
   sortBy?: string;
+  originalLanguage?: string;
+  minRuntime?: number;
+  maxRuntime?: number;
 }
 
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
@@ -138,6 +149,15 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   }
   if (params.minVoteCount) {
     query['vote_count.gte'] = String(params.minVoteCount);
+  }
+  if (params.originalLanguage) {
+    query.with_original_language = params.originalLanguage;
+  }
+  if (params.minRuntime) {
+    query['with_runtime.gte'] = String(params.minRuntime);
+  }
+  if (params.maxRuntime) {
+    query['with_runtime.lte'] = String(params.maxRuntime);
   }
   return query;
 }
@@ -180,4 +200,15 @@ export function getPersonDetail(id: number, signal?: AbortSignal): Promise<TMDBP
 
 export function getPersonMovieCredits(id: number, signal?: AbortSignal): Promise<TMDBPersonMovieCredits> {
   return tmdbFetch(`/person/${id}/movie_credits`, {}, signal);
+}
+
+export interface TMDBCollection {
+  id: number;
+  name: string;
+  overview: string;
+  parts: TMDBMovie[];
+}
+
+export function getCollection(id: number, signal?: AbortSignal): Promise<TMDBCollection> {
+  return tmdbFetch(`/collection/${id}`, {}, signal);
 }
