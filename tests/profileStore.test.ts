@@ -27,6 +27,7 @@ describe('profileStore', () => {
       favorites: [],
       swipedLiked: [],
       swipedDisliked: [],
+      watched: [],
     });
   });
 
@@ -39,6 +40,7 @@ describe('profileStore', () => {
       favorites: [],
       swipedLiked: [],
       swipedDisliked: [],
+      watched: [],
     });
   });
 
@@ -85,7 +87,7 @@ describe('profileStore', () => {
     expect(mod.profileStore.get().swipedLiked).toEqual([1]);
   });
 
-  it('migrates a profile stored before swipedLiked/swipedDisliked existed', async () => {
+  it('migrates a profile stored before swipedLiked/swipedDisliked/watched existed', async () => {
     window.localStorage.setItem(
       'cinescope:profile',
       JSON.stringify({ genres: { 28: 5 }, directors: {}, favorites: [10] })
@@ -97,6 +99,98 @@ describe('profileStore', () => {
       favorites: [10],
       swipedLiked: [],
       swipedDisliked: [],
+      watched: [],
+    });
+  });
+
+  it('migrates a profile stored before watched existed but after swipedLiked/swipedDisliked did', async () => {
+    window.localStorage.setItem(
+      'cinescope:profile',
+      JSON.stringify({ genres: { 28: 5 }, directors: {}, favorites: [10], swipedLiked: [2], swipedDisliked: [] })
+    );
+    const mod = await import('../src/stores/profileStore');
+    expect(mod.profileStore.get()).toEqual({
+      genres: { 28: 5 },
+      directors: {},
+      favorites: [10],
+      swipedLiked: [2],
+      swipedDisliked: [],
+      watched: [],
+    });
+  });
+
+  it('persists a watched movie across store reloads', async () => {
+    const mod1 = await import('../src/stores/profileStore');
+    mod1.markWatched(88, [28]);
+    expect(mod1.profileStore.get().watched).toEqual([88]);
+
+    vi.resetModules();
+    const mod2 = await import('../src/stores/profileStore');
+    expect(mod2.profileStore.get().watched).toEqual([88]);
+    expect(mod2.profileStore.get().genres[28]).toBe(3);
+  });
+
+  it('does not double-count score when marking the same movie watched twice', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.markWatched(88, [28]);
+    mod.markWatched(88, [28]);
+    expect(mod.profileStore.get().genres[28]).toBe(3);
+    expect(mod.profileStore.get().watched).toEqual([88]);
+  });
+
+  it('unmarkWatched removes the movie from watched', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.markWatched(88, [28]);
+    mod.unmarkWatched(88);
+    expect(mod.profileStore.get().watched).toEqual([]);
+  });
+
+  it('exportProfile returns the current profile as JSON', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.favoriteMovie(1, [28], 7);
+    const json = mod.exportProfile();
+    expect(JSON.parse(json)).toEqual(mod.profileStore.get());
+  });
+
+  it('importProfile restores a previously exported profile', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.favoriteMovie(1, [28], 7);
+    const json = mod.exportProfile();
+    mod.resetProfile();
+    expect(mod.profileStore.get().favorites).toEqual([]);
+    const ok = mod.importProfile(json);
+    expect(ok).toBe(true);
+    expect(mod.profileStore.get().favorites).toEqual([1]);
+    expect(mod.profileStore.get().genres[28]).toBe(5);
+  });
+
+  it('importProfile rejects invalid JSON and leaves the profile untouched', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.favoriteMovie(1, [28], 7);
+    const ok = mod.importProfile('not valid json{{{');
+    expect(ok).toBe(false);
+    expect(mod.profileStore.get().favorites).toEqual([1]);
+  });
+
+  it('importProfile rejects a JSON payload that is not a valid profile shape', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.favoriteMovie(1, [28], 7);
+    const ok = mod.importProfile(JSON.stringify({ not: 'a profile' }));
+    expect(ok).toBe(false);
+    expect(mod.profileStore.get().favorites).toEqual([1]);
+  });
+
+  it('importProfile backfills fields missing from an older export', async () => {
+    const mod = await import('../src/stores/profileStore');
+    const ok = mod.importProfile(JSON.stringify({ genres: { 28: 5 }, directors: {}, favorites: [10] }));
+    expect(ok).toBe(true);
+    expect(mod.profileStore.get()).toEqual({
+      genres: { 28: 5 },
+      directors: {},
+      favorites: [10],
+      swipedLiked: [],
+      swipedDisliked: [],
+      watched: [],
     });
   });
 });

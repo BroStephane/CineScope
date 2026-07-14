@@ -7,6 +7,8 @@ import {
   recordSwipeLike,
   recordSwipeDislike,
   resetSwipeDislikes,
+  recordWatched,
+  unwatch,
   type ProfileScores,
 } from '../lib/recommend';
 import { getItem, setItem } from '../lib/storage';
@@ -25,14 +27,16 @@ function isValidProfile(value: unknown): value is ProfileScores {
   );
 }
 
-// Profiles saved before swipedLiked/swipedDisliked existed won't have them —
-// backfill instead of rejecting, so existing favorites/scores aren't wiped
-// for users who already had the app installed.
+// Profiles saved before swipedLiked/swipedDisliked/watched existed won't have
+// them — backfill instead of rejecting, so existing favorites/scores aren't
+// wiped for users who already had the app installed, and so an older
+// exported backup can still be imported today.
 function normalizeProfile(profile: ProfileScores): ProfileScores {
   return {
     ...profile,
     swipedLiked: profile.swipedLiked ?? [],
     swipedDisliked: profile.swipedDisliked ?? [],
+    watched: profile.watched ?? [],
   };
 }
 
@@ -93,6 +97,37 @@ export function clearSwipeDislikes(): void {
   const next = resetSwipeDislikes(profileStore.get());
   profileStore.set(next);
   persist(next);
+}
+
+export function markWatched(movieId: number, genreIds: number[]): void {
+  const current = profileStore.get();
+  if ((current.watched ?? []).includes(movieId)) return;
+  const next = recordWatched(current, movieId, genreIds);
+  profileStore.set(next);
+  persist(next);
+}
+
+export function unmarkWatched(movieId: number): void {
+  const next = unwatch(profileStore.get(), movieId);
+  profileStore.set(next);
+  persist(next);
+}
+
+export function exportProfile(): string {
+  return JSON.stringify(profileStore.get(), null, 2);
+}
+
+export function importProfile(json: string): boolean {
+  try {
+    const parsed = JSON.parse(json);
+    if (!isValidProfile(parsed)) return false;
+    const next = normalizeProfile(parsed);
+    profileStore.set(next);
+    persist(next);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function resetProfile(): void {
