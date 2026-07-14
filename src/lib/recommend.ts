@@ -5,10 +5,19 @@ export interface ProfileScores {
   swipedLiked?: number[];
   swipedDisliked?: number[];
   watched?: number[];
+  ratings?: Record<number, number>;
 }
 
 export function createEmptyProfile(): ProfileScores {
-  return { genres: {}, directors: {}, favorites: [], swipedLiked: [], swipedDisliked: [], watched: [] };
+  return {
+    genres: {},
+    directors: {},
+    favorites: [],
+    swipedLiked: [],
+    swipedDisliked: [],
+    watched: [],
+    ratings: {},
+  };
 }
 
 // Intentionally called on every visit, unguarded — views are meant to accumulate as an engagement signal (unlike recordFavorite, a discrete action).
@@ -119,4 +128,37 @@ export function unwatch(profile: ProfileScores, movieId: number): ProfileScores 
 export function excludeWatched<T extends { id: number }>(movies: T[], profile: ProfileScores): T[] {
   const watched = profile.watched ?? [];
   return movies.filter((movie) => !watched.includes(movie.id));
+}
+
+// Unlike the discrete toggles above (favorite/watched/swipe), a rating is a
+// mutable value the user can change their mind about — the genre score must
+// track the *current* rating, so changing it applies only the delta rather
+// than re-adding the full new value.
+export function recordRating(
+  profile: ProfileScores,
+  movieId: number,
+  rating: number,
+  genreIds: number[]
+): ProfileScores {
+  const ratings = { ...(profile.ratings ?? {}) };
+  const previous = ratings[movieId] ?? 0;
+  const delta = rating - previous;
+  const genres = { ...profile.genres };
+  for (const id of genreIds) {
+    genres[id] = (genres[id] ?? 0) + delta;
+  }
+  ratings[movieId] = rating;
+  return { ...profile, genres, ratings };
+}
+
+export function removeRating(profile: ProfileScores, movieId: number, genreIds: number[]): ProfileScores {
+  const ratings = { ...(profile.ratings ?? {}) };
+  const previous = ratings[movieId];
+  if (previous === undefined) return profile;
+  delete ratings[movieId];
+  const genres = { ...profile.genres };
+  for (const id of genreIds) {
+    genres[id] = (genres[id] ?? 0) - previous;
+  }
+  return { ...profile, genres, ratings };
 }

@@ -13,6 +13,8 @@ import {
   recordWatched,
   unwatch,
   excludeWatched,
+  recordRating,
+  removeRating,
 } from '../src/lib/recommend';
 
 describe('recordView', () => {
@@ -176,5 +178,41 @@ describe('excludeWatched', () => {
     const profile = { genres: {}, directors: {}, favorites: [] };
     const movies = [{ id: 1 }];
     expect(excludeWatched(movies, profile)).toEqual([{ id: 1 }]);
+  });
+});
+
+describe('recordRating', () => {
+  it('adds genre points equal to the rating and stores it', () => {
+    const profile = recordRating(createEmptyProfile(), 500, 4, [28, 12]);
+    expect(profile.genres).toEqual({ 28: 4, 12: 4 });
+    expect(profile.ratings).toEqual({ 500: 4 });
+  });
+
+  it('only applies the delta when changing an existing rating', () => {
+    let profile = recordRating(createEmptyProfile(), 500, 3, [28]);
+    profile = recordRating(profile, 500, 5, [28]);
+    expect(profile.genres[28]).toBe(5);
+    expect(profile.ratings).toEqual({ 500: 5 });
+  });
+
+  it('subtracts genre points when lowering a rating', () => {
+    let profile = recordRating(createEmptyProfile(), 500, 5, [28]);
+    profile = recordRating(profile, 500, 2, [28]);
+    expect(profile.genres[28]).toBe(2);
+    expect(profile.ratings).toEqual({ 500: 2 });
+  });
+});
+
+describe('removeRating', () => {
+  it('removes the rating and subtracts its genre points', () => {
+    let profile = recordRating(createEmptyProfile(), 500, 4, [28]);
+    profile = removeRating(profile, 500, [28]);
+    expect(profile.genres[28]).toBe(0);
+    expect(profile.ratings).toEqual({});
+  });
+
+  it('is a no-op when the movie has no rating', () => {
+    const profile = createEmptyProfile();
+    expect(removeRating(profile, 999, [28])).toEqual(profile);
   });
 });
