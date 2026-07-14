@@ -4,7 +4,7 @@ import { SlidersHorizontal, RotateCcw } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import { discoverMovies, searchMovies, getGenres, type DiscoverParams, type TMDBMovie } from '../lib/tmdb';
 import { profileStore } from '../stores/profileStore';
-import { topGenres, excludeFavorites } from '../lib/recommend';
+import { topGenres, excludeFavorites, excludeWatched } from '../lib/recommend';
 
 interface Genre {
   id: number;
@@ -21,7 +21,7 @@ type SortMode = 'tendance' | 'note' | 'pour-vous';
 export default function SearchExplorer() {
   const profile = useStore(profileStore);
   const [query, setQuery] = useState('');
-  const [genre, setGenre] = useState<number | null>(null);
+  const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([]);
   const [minRating, setMinRating] = useState(0);
   const [year, setYear] = useState(0);
   const [sortMode, setSortMode] = useState<SortMode>('tendance');
@@ -53,10 +53,15 @@ export default function SearchExplorer() {
   const preferredGenres = topGenres(profile, 2);
   const pourVousUnavailable = isPourVous && preferredGenres.length === 0;
 
+  function filterResults(results: TMDBMovie[]) {
+    return isPourVous ? excludeWatched(excludeFavorites(results, profile), profile) : results;
+  }
+
   function buildRequest(pageNum: number) {
     if (isTextSearch) return searchMovies(query.trim(), pageNum);
     const params: DiscoverParams = {
-      genres: isPourVous ? preferredGenres : genre ? [genre] : undefined,
+      genres: isPourVous ? preferredGenres : selectedGenreIds.length > 0 ? selectedGenreIds : undefined,
+      genreMatch: 'any',
       minRating: minRating || undefined,
       year: year || undefined,
       sortBy: sortMode === 'note' ? 'vote_average.desc' : undefined,
@@ -82,8 +87,7 @@ export default function SearchExplorer() {
       buildRequest(1)
         .then((data) => {
           if (cancelled) return;
-          const results = isPourVous ? excludeFavorites(data.results, profile) : data.results;
-          setMovies(results);
+          setMovies(filterResults(data.results));
           setPage(1);
           setTotalPages(data.total_pages);
         })
@@ -99,7 +103,7 @@ export default function SearchExplorer() {
       clearTimeout(timeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, genre, minRating, year, sortMode, preferredGenres.join(','), pourVousUnavailable]);
+  }, [query, selectedGenreIds.join(','), minRating, year, sortMode, preferredGenres.join(','), pourVousUnavailable]);
 
   // Loads the next page when the sentinel at the bottom of the grid scrolls into view.
   useEffect(() => {
@@ -115,7 +119,7 @@ export default function SearchExplorer() {
         buildRequest(nextPage)
           .then((data) => {
             if (cancelled) return;
-            const results = isPourVous ? excludeFavorites(data.results, profile) : data.results;
+            const results = filterResults(data.results);
             // TMDB's popularity-based sort is live — its ranking can shift between
             // the page-1 and page-N fetches, so the same movie can reappear across
             // pages. Dedupe by id to avoid duplicate React keys and duplicate cards.
@@ -144,13 +148,17 @@ export default function SearchExplorer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, totalPages, pourVousUnavailable]);
 
-  const hasActiveFilters = genre !== null || year !== 0 || minRating !== 0 || sortMode !== 'tendance';
+  const hasActiveFilters = selectedGenreIds.length > 0 || year !== 0 || minRating !== 0 || sortMode !== 'tendance';
 
   function resetFilters() {
-    setGenre(null);
+    setSelectedGenreIds([]);
     setYear(0);
     setMinRating(0);
     setSortMode('tendance');
+  }
+
+  function toggleGenre(id: number) {
+    setSelectedGenreIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
   }
 
   return (
@@ -201,14 +209,14 @@ export default function SearchExplorer() {
       )}
 
       {sortMode !== 'pour-vous' && (
-        <div role="group" aria-label="Filtrer par genre" className="mt-3 flex flex-wrap gap-2">
+        <div role="group" aria-label="Filtrer par genres" className="mt-3 flex flex-wrap gap-2">
           {genres.map((g) => (
             <button
               key={g.id}
-              aria-pressed={genre === g.id}
-              onClick={() => setGenre(genre === g.id ? null : g.id)}
+              aria-pressed={selectedGenreIds.includes(g.id)}
+              onClick={() => toggleGenre(g.id)}
               className={`glass-pill flex min-h-11 items-center rounded-full px-3 py-1.5 text-xs ${
-                genre === g.id ? 'glass-pill-active text-white' : 'text-white/80'
+                selectedGenreIds.includes(g.id) ? 'glass-pill-active text-white' : 'text-white/80'
               }`}
             >
               {g.name}
