@@ -33,6 +33,13 @@ describe('buildDiscoverQuery', () => {
       'vote_count.gte': '300',
     });
   });
+
+  it('joins multiple genre ids with a pipe when genreMatch is "any"', () => {
+    expect(buildDiscoverQuery({ genres: [28, 12], genreMatch: 'any' })).toEqual({
+      sort_by: 'popularity.desc',
+      with_genres: '28|12',
+    });
+  });
 });
 
 describe('tmdbImageUrl', () => {

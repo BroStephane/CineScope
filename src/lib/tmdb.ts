@@ -118,6 +118,7 @@ export function searchMovies(query: string, page = 1, signal?: AbortSignal): Pro
 
 export interface DiscoverParams {
   genres?: number[];
+  genreMatch?: 'all' | 'any';
   year?: number;
   minRating?: number;
   minVoteCount?: number;
@@ -127,7 +128,7 @@ export interface DiscoverParams {
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
   const query: Record<string, string> = { sort_by: params.sortBy ?? 'popularity.desc' };
   if (params.genres && params.genres.length > 0) {
-    query.with_genres = params.genres.join(',');
+    query.with_genres = params.genres.join(params.genreMatch === 'any' ? '|' : ',');
   }
   if (params.year) {
     query.primary_release_year = String(params.year);
