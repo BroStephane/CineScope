@@ -21,6 +21,8 @@ const sampleMovie: TMDBMovieDetail = {
   runtime: 120,
   genres: [{ id: 1, name: 'Action' }],
   belongs_to_collection: null,
+  budget: 0,
+  revenue: 0,
 };
 
 describe('favoritesCache', () => {

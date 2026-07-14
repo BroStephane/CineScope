@@ -29,6 +29,22 @@ import {
   uncacheFavoriteMovieData,
 } from '../lib/favoritesCache';
 
+const currencyFormatter = new Intl.NumberFormat('fr-FR', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
+
+function BoxOfficeTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="glass-card rounded-xl p-3">
+      <p className="text-xs uppercase tracking-wide text-white/50">{label}</p>
+      <p className="mt-1 font-display text-lg tracking-tight text-white">{value}</p>
+    </div>
+  );
+}
+
 function ProviderGroup({ label, providers }: { label: string; providers: TMDBWatchProvider[] }) {
   return (
     <div className="mb-3">
@@ -130,6 +146,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
   const hasWatchProviders =
     !!watchProviders && !!(watchProviders.flatrate || watchProviders.rent || watchProviders.buy);
   const similar = movie.similar?.results ?? [];
+  const hasBoxOffice = movie.budget > 0 || movie.revenue > 0;
 
   function toggleFavorite() {
     if (!movie) return;
@@ -322,6 +339,24 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
             className="glass-input w-full rounded-2xl px-4 py-3 text-sm text-white/90 placeholder:text-white/40"
           />
         </div>
+
+        {hasBoxOffice && (
+          <section className="mt-8">
+            <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">Box-office</h2>
+            <div className="grid max-w-md grid-cols-2 gap-3 sm:grid-cols-3">
+              {movie.budget > 0 && <BoxOfficeTile label="Budget" value={currencyFormatter.format(movie.budget)} />}
+              {movie.revenue > 0 && (
+                <BoxOfficeTile label="Recettes mondiales" value={currencyFormatter.format(movie.revenue)} />
+              )}
+              {movie.budget > 0 && movie.revenue > 0 && (
+                <BoxOfficeTile
+                  label="Rentabilité"
+                  value={`×${(movie.revenue / movie.budget).toFixed(1)}`}
+                />
+              )}
+            </div>
+          </section>
+        )}
 
         {hasWatchProviders && watchProviders && (
           <section className="mt-8">

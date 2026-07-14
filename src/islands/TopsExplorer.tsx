@@ -6,11 +6,18 @@ const TABS = [
   { id: 'mieux-notes', label: 'Mieux notés' },
   { id: 'top-genre', label: 'Top par genre' },
   { id: 'top-annee', label: "Top de l'année" },
+  { id: 'box-office', label: 'Box-office' },
+  { id: 'decennie', label: 'Par décennie' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
 const MIN_VOTE_COUNT = 300;
 const CURRENT_YEAR = new Date().getFullYear();
+const OLDEST_DECADE = 1950;
+const DECADES = Array.from(
+  { length: Math.floor((CURRENT_YEAR - OLDEST_DECADE) / 10) + 1 },
+  (_, i) => Math.floor(CURRENT_YEAR / 10) * 10 - i * 10
+);
 
 function parseTab(search: string): TabId {
   const raw = new URLSearchParams(search).get('tab');
@@ -22,16 +29,23 @@ function parseGenre(search: string): number | null {
   return Number.isInteger(raw) && raw > 0 ? raw : null;
 }
 
-function buildHref(tab: TabId, genre: number | null): string {
+function parseDecade(search: string): number | null {
+  const raw = Number(new URLSearchParams(search).get('decade'));
+  return DECADES.includes(raw) ? raw : null;
+}
+
+function buildHref(tab: TabId, genre: number | null, decade: number | null = null): string {
   const params = new URLSearchParams();
   params.set('tab', tab);
   if (genre) params.set('genre', String(genre));
+  if (decade) params.set('decade', String(decade));
   return `/tops?${params.toString()}`;
 }
 
 export default function TopsExplorer() {
   const [tab, setTab] = useState<TabId>('mieux-notes');
   const [genre, setGenre] = useState<number | null>(null);
+  const [decade, setDecade] = useState<number | null>(null);
   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
   const [movies, setMovies] = useState<TMDBMovie[]>([]);
   const [page, setPage] = useState(1);
@@ -45,6 +59,7 @@ export default function TopsExplorer() {
     const search = window.location.search;
     setTab(parseTab(search));
     setGenre(parseGenre(search));
+    setDecade(parseDecade(search));
   }, []);
 
   useEffect(() => {
@@ -62,21 +77,38 @@ export default function TopsExplorer() {
   }, []);
 
   const isEmptyGenreTab = tab === 'top-genre' && !genre;
+  const isEmptyDecadeTab = tab === 'decennie' && !decade;
+  const isEmptyTab = isEmptyGenreTab || isEmptyDecadeTab;
 
   function buildRequest(pageNum: number) {
-    return tab === 'mieux-notes'
-      ? getTopRated(pageNum)
-      : tab === 'top-genre'
-        ? discoverMovies(
-            { genres: genre ? [genre] : undefined, minVoteCount: MIN_VOTE_COUNT, sortBy: 'vote_average.desc' },
-            pageNum
-          )
-        : discoverMovies({ year: CURRENT_YEAR, minVoteCount: MIN_VOTE_COUNT, sortBy: 'vote_average.desc' }, pageNum);
+    switch (tab) {
+      case 'mieux-notes':
+        return getTopRated(pageNum);
+      case 'top-genre':
+        return discoverMovies(
+          { genres: genre ? [genre] : undefined, minVoteCount: MIN_VOTE_COUNT, sortBy: 'vote_average.desc' },
+          pageNum
+        );
+      case 'top-annee':
+        return discoverMovies({ year: CURRENT_YEAR, minVoteCount: MIN_VOTE_COUNT, sortBy: 'vote_average.desc' }, pageNum);
+      case 'box-office':
+        return discoverMovies({ minVoteCount: MIN_VOTE_COUNT, sortBy: 'revenue.desc' }, pageNum);
+      case 'decennie':
+        return discoverMovies(
+          {
+            minReleaseDate: decade ? `${decade}-01-01` : undefined,
+            maxReleaseDate: decade ? `${decade + 9}-12-31` : undefined,
+            minVoteCount: MIN_VOTE_COUNT,
+            sortBy: 'vote_average.desc',
+          },
+          pageNum
+        );
+    }
   }
 
-  // Initial load, reset whenever the tab or genre changes.
+  // Initial load, reset whenever the tab, genre or decade changes.
   useEffect(() => {
-    if (isEmptyGenreTab) {
+    if (isEmptyTab) {
       setMovies([]);
       setPage(1);
       setTotalPages(1);
@@ -107,12 +139,12 @@ export default function TopsExplorer() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, genre, isEmptyGenreTab]);
+  }, [tab, genre, decade, isEmptyTab]);
 
   // Loads the next page when the sentinel at the bottom of the grid scrolls into view.
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel || isEmptyGenreTab || page >= totalPages) return;
+    if (!sentinel || isEmptyTab || page >= totalPages) return;
     let cancelled = false;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -146,7 +178,7 @@ export default function TopsExplorer() {
       observer.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, totalPages, isEmptyGenreTab]);
+  }, [page, totalPages, isEmptyTab]);
 
   return (
     <div className="px-4 py-6 md:px-8">
@@ -184,12 +216,29 @@ export default function TopsExplorer() {
         </div>
       )}
 
+      {tab === 'decennie' && (
+        <div role="group" aria-label="Choisir une décennie" className="mt-4 flex flex-wrap gap-2">
+          {DECADES.map((d) => (
+            <a
+              key={d}
+              href={buildHref('decennie', null, d)}
+              className={`glass-pill flex min-h-11 items-center rounded-full px-3 py-1.5 text-xs ${
+                decade === d ? 'glass-pill-active text-white' : 'text-white/80'
+              }`}
+            >
+              {d}s
+            </a>
+          ))}
+        </div>
+      )}
+
       {isEmptyGenreTab && <p className="mt-6 text-sm text-white/50">Choisissez un genre pour voir son top.</p>}
+      {isEmptyDecadeTab && <p className="mt-6 text-sm text-white/50">Choisissez une décennie pour voir son top.</p>}
       {error && <p className="mt-6 text-sm text-white/50">Impossible de charger cette section.</p>}
-      {!error && !isEmptyGenreTab && loading && movies.length === 0 && (
+      {!error && !isEmptyTab && loading && movies.length === 0 && (
         <p className="mt-6 text-sm text-white/50">Chargement…</p>
       )}
-      {!error && !isEmptyGenreTab && !loading && movies.length === 0 && (
+      {!error && !isEmptyTab && !loading && movies.length === 0 && (
         <p className="mt-6 text-sm text-white/50">Rien à afficher pour le moment.</p>
       )}
 
@@ -199,8 +248,8 @@ export default function TopsExplorer() {
         ))}
       </div>
 
-      {!isEmptyGenreTab && page < totalPages && <div ref={sentinelRef} className="h-1" />}
-      {!isEmptyGenreTab && loading && movies.length > 0 && (
+      {!isEmptyTab && page < totalPages && <div ref={sentinelRef} className="h-1" />}
+      {!isEmptyTab && loading && movies.length > 0 && (
         <p className="mt-4 text-center text-sm text-white/50">Chargement…</p>
       )}
     </div>

@@ -56,6 +56,9 @@ export interface TMDBMovieDetail extends TMDBMovie {
   similar?: TMDBListResponse<TMDBMovie>;
   'watch/providers'?: { results: Record<string, TMDBWatchProviderRegion> };
   belongs_to_collection: TMDBCollectionSummary | null;
+  // USD, as reported by TMDB — both are 0 when unknown (not "free"/"no revenue").
+  budget: number;
+  revenue: number;
 }
 
 export interface TMDBListResponse<T> {
@@ -135,6 +138,7 @@ export interface DiscoverParams {
   minRuntime?: number;
   maxRuntime?: number;
   maxReleaseDate?: string;
+  minReleaseDate?: string;
 }
 
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
@@ -159,6 +163,9 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   }
   if (params.maxRuntime) {
     query['with_runtime.lte'] = String(params.maxRuntime);
+  }
+  if (params.minReleaseDate) {
+    query['primary_release_date.gte'] = params.minReleaseDate;
   }
   if (params.maxReleaseDate) {
     query['primary_release_date.lte'] = params.maxReleaseDate;

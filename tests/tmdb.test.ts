@@ -56,6 +56,21 @@ describe('buildDiscoverQuery', () => {
       'primary_release_date.lte': '2026-07-14',
     });
   });
+
+  it('adds a minimum release date filter', () => {
+    expect(buildDiscoverQuery({ minReleaseDate: '1990-01-01' })).toEqual({
+      sort_by: 'popularity.desc',
+      'primary_release_date.gte': '1990-01-01',
+    });
+  });
+
+  it('combines minReleaseDate and maxReleaseDate for a decade range', () => {
+    expect(buildDiscoverQuery({ minReleaseDate: '1990-01-01', maxReleaseDate: '1999-12-31' })).toEqual({
+      sort_by: 'popularity.desc',
+      'primary_release_date.gte': '1990-01-01',
+      'primary_release_date.lte': '1999-12-31',
+    });
+  });
 });
 
 describe('tmdbImageUrl', () => {

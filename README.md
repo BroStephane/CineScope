@@ -10,11 +10,11 @@ CineScope est une application de catalogue cinéma alimentée par l'API TMDB —
 - Accueil avec tendances du jour, films au cinéma, populaires, mieux notés et prochainement, chacun avec sa page dédiée à défilement infini.
 - Recherche texte + filtres cumulables : genres (plusieurs à la fois), année, note minimum, langue originale, durée, avec trois modes de tri (tendance, note, "pour vous").
 - Sorties : films classés par date de sortie (du plus récent au plus ancien), affichés avec synopsis et note, filtrables par genre (liste déroulante), note minimum et année.
-- Tops : mieux notés, top par genre, top de l'année.
+- Tops : mieux notés, top par genre, top de l'année, top box-office, top par décennie (1950s à aujourd'hui).
 - Fiches réalisateur/acteur avec filmographie complète.
 
 **Décider quoi regarder**
-- Fiche film détaillée : casting, bande-annonce, films similaires, franchise/collection, où regarder (streaming/location/achat), partage.
+- Fiche film détaillée : casting, bande-annonce, films similaires, franchise/collection, box-office (budget, recettes mondiales, rentabilité), où regarder (streaming/location/achat), partage.
 - Découverte : swipez les films façon Tinder (au clavier ou au doigt) pour construire votre liste "à voir", propulsé par un algorithme de recommandation local basé sur vos goûts — la pioche reprend là où vous l'aviez laissée d'une visite à l'autre.
 - Section "Pour vous" sur l'accueil et la recherche, basée sur vos genres préférés.
 - Widget "Ce soir, vous avez…" sur l'accueil : croise votre temps disponible avec votre liste "à voir" et vos genres préférés pour sortir 3 suggestions qui tiennent dans le temps dispo.
