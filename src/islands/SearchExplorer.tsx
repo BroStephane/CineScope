@@ -116,7 +116,13 @@ export default function SearchExplorer() {
           .then((data) => {
             if (cancelled) return;
             const results = isPourVous ? excludeFavorites(data.results, profile) : data.results;
-            setMovies((prev) => [...prev, ...results]);
+            // TMDB's popularity-based sort is live — its ranking can shift between
+            // the page-1 and page-N fetches, so the same movie can reappear across
+            // pages. Dedupe by id to avoid duplicate React keys and duplicate cards.
+            setMovies((prev) => {
+              const seen = new Set(prev.map((m) => m.id));
+              return [...prev, ...results.filter((m) => !seen.has(m.id))];
+            });
             setPage(nextPage);
             setTotalPages(data.total_pages);
           })
