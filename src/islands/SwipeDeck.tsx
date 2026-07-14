@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion';
 import { Heart, X, Star } from 'lucide-react';
@@ -36,7 +36,7 @@ export default function SwipeDeck() {
   const [deck, setDeck] = useState<TMDBMovie[]>([]);
   const [page, setPage] = useState(1);
   const [exhausted, setExhausted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const loadingRef = useRef(false);
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const likeOpacity = useTransform(x, [20, 120], [0, 1]);
@@ -45,14 +45,14 @@ export default function SwipeDeck() {
   const genres = topGenres(profile, 2);
 
   useEffect(() => {
-    if (exhausted || loading) return;
+    if (exhausted || loadingRef.current) return;
     if (deck.length >= BUFFER_LOW_WATERMARK) return;
     if (page > MAX_SWIPE_PAGES) {
       if (deck.length === 0) setExhausted(true);
       return;
     }
     let cancelled = false;
-    setLoading(true);
+    loadingRef.current = true;
     const request = genres.length > 0
       ? discoverMovies({ genres, sortBy: 'popularity.desc' }, page)
       : getPopular(page);
@@ -67,13 +67,13 @@ export default function SwipeDeck() {
         if (!cancelled) setExhausted(true);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        loadingRef.current = false;
       });
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deck.length, page, exhausted, loading, genres.join(',')]);
+  }, [deck.length, page, exhausted, genres.join(',')]);
 
   const topMovie = deck[0];
   const nextMovie = deck[1];
