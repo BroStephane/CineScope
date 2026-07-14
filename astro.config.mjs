@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import vercel from '@astrojs/vercel';
 import { VitePWA } from 'vite-plugin-pwa';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // vite-plugin-pwa's `injectManifest` build step (the one that actually bundles
 // `src/sw.ts` — resolving its `workbox-*` imports and compiling out the TS
 // syntax — then writes the final sw.js) only runs from a `closeBundle` hook
@@ -89,7 +91,7 @@ export default defineConfig({
   // build time and all of their data is fetched client-side from TMDB) can be
   // served — Astro requires an adapter for any non-prerendered route, even
   // though the rest of the site remains fully static/serverless.
-  adapter: vercel(),
+  adapter: cloudflare(),
   integrations: [react(), pwaServiceWorkerIntegration()],
   vite: {
     plugins: [tailwindcss(), ...pwaPlugins],
