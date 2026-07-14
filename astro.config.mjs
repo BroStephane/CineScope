@@ -84,11 +84,11 @@ function pwaServiceWorkerIntegration() {
 
 export default defineConfig({
   // Output stays static by default (SSG) for every route. The Vercel adapter
-  // is only needed so the single on-demand route (`/movie/[id]`, which sets
-  // `export const prerender = false` since movie ids aren't known at build
-  // time and all of its data is fetched client-side from TMDB) can be served
-  // — Astro requires an adapter for any non-prerendered route, even though
-  // the rest of the site remains fully static/serverless.
+  // is only needed so the on-demand routes (`/movie/[id]` and `/personne/[id]`,
+  // which set `export const prerender = false` since their ids aren't known at
+  // build time and all of their data is fetched client-side from TMDB) can be
+  // served — Astro requires an adapter for any non-prerendered route, even
+  // though the rest of the site remains fully static/serverless.
   adapter: vercel(),
   integrations: [react(), pwaServiceWorkerIntegration()],
   vite: {
