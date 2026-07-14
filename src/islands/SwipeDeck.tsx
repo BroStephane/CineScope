@@ -112,11 +112,11 @@ export default function SwipeDeck() {
 
       <div className="relative mt-6 h-[28rem] w-64 sm:w-72">
         {exhausted && deck.length === 0 && (
-          <div className="flex h-full flex-col items-center justify-center gap-4 rounded-2xl border border-white/10 bg-surface/60 p-6 text-center">
+          <div className="glass flex h-full flex-col items-center justify-center gap-4 rounded-2xl p-6 text-center">
             <p className="text-white/70">Vous avez tout vu !</p>
             <button
               onClick={restart}
-              className="min-h-11 rounded-full border border-white/20 px-6 py-2 text-sm text-white"
+              className="glass-pill min-h-11 rounded-full px-6 py-2 text-sm text-white"
             >
               Revoir les films passés
             </button>
@@ -145,13 +145,13 @@ export default function SwipeDeck() {
             <SwipeCard movie={topMovie} />
             <motion.div
               style={{ opacity: likeOpacity }}
-              className="pointer-events-none absolute right-4 top-4 rounded-full bg-accent px-3 py-1 text-xs font-bold text-black"
+              className="glass-pill glass-pill-active pointer-events-none absolute right-4 top-4 rounded-full px-3 py-1 text-xs font-bold text-white"
             >
               J'aime
             </motion.div>
             <motion.div
               style={{ opacity: passOpacity }}
-              className="pointer-events-none absolute left-4 top-4 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white"
+              className="glass-pill pointer-events-none absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-bold text-white"
             >
               Passer
             </motion.div>
@@ -164,7 +164,7 @@ export default function SwipeDeck() {
           onClick={() => decide('dislike')}
           disabled={!topMovie}
           aria-label="Passer ce film"
-          className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 text-white/80 disabled:opacity-30"
+          className="glass-pill flex h-14 w-14 items-center justify-center rounded-full text-white/80 disabled:opacity-30"
         >
           <X size={24} aria-hidden="true" />
         </button>
@@ -172,7 +172,7 @@ export default function SwipeDeck() {
           onClick={() => decide('like')}
           disabled={!topMovie}
           aria-label="Ajouter à ma liste"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-black disabled:opacity-30"
+          className="glass-pill glass-pill-active flex h-14 w-14 items-center justify-center rounded-full text-white disabled:opacity-30"
         >
           <Heart size={24} aria-hidden="true" />
         </button>

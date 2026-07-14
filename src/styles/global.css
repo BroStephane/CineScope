@@ -13,3 +13,94 @@
 :root {
   color-scheme: dark;
 }
+
+/*
+ * Liquid glass material — one consistent frosted surface language used for
+ * every piece of chrome (nav, buttons, inputs, chips, banners), never over
+ * poster/backdrop artwork. Tinted with the brand accent (violet) rather than
+ * neutral white/gray so it reads as this app's glass, not generic iOS glass.
+ * `backdrop-filter` cost is fine here — surfaces are small and few per screen.
+ */
+.glass {
+  background: linear-gradient(160deg, rgba(124, 92, 255, 0.14), rgba(255, 255, 255, 0.03) 60%);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 0 24px rgba(124, 92, 255, 0.06),
+    0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.glass-strong {
+  background: linear-gradient(160deg, rgba(124, 92, 255, 0.18), rgba(10, 10, 15, 0.72) 65%);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.glass-pill {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.glass-pill-active {
+  background: linear-gradient(160deg, rgba(124, 92, 255, 0.65), rgba(124, 92, 255, 0.4));
+  border-color: rgba(124, 92, 255, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 4px 20px rgba(124, 92, 255, 0.4);
+}
+
+.glass-input {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+@media (hover: hover) {
+  .glass-pill:not(.glass-pill-active):hover {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06));
+    transform: translateY(-1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-pill {
+    transition: none;
+  }
+  .glass-pill:hover {
+    transform: none;
+  }
+}
+
+/* Thin glass edge around poster art — never blurred, the artwork stays crisp. */
+.glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+@media (hover: hover) {
+  .glass-card:hover {
+    border-color: rgba(124, 92, 255, 0.45);
+    box-shadow: 0 8px 28px rgba(124, 92, 255, 0.25);
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card {
+    transition: none;
+  }
+  .glass-card:hover {
+    transform: none;
+  }
+}

@@ -21,7 +21,7 @@ export default function InstallPrompt() {
 
   return (
     <button
-      className="fixed bottom-20 right-4 z-50 min-h-11 rounded-full bg-accent px-4 py-2 text-sm font-semibold text-black shadow-lg md:bottom-4"
+      className="glass-strong fixed bottom-20 right-4 z-50 min-h-11 rounded-full px-4 py-2 text-sm font-semibold text-white md:bottom-4"
       onClick={async () => {
         await deferredPrompt.prompt();
         await deferredPrompt.userChoice;

@@ -165,7 +165,7 @@ export default function SearchExplorer() {
         placeholder="Rechercher un film…"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="mt-4 w-full rounded-full border border-white/10 bg-surface/80 px-4 py-3 text-sm backdrop-blur placeholder:text-white/40"
+        className="glass-input mt-4 w-full rounded-full px-4 py-3 text-sm placeholder:text-white/40"
       />
 
       <div className="mt-4 flex items-center gap-2 text-xs uppercase tracking-wide text-white/50">
@@ -174,7 +174,7 @@ export default function SearchExplorer() {
         {hasActiveFilters && (
           <button
             onClick={resetFilters}
-            className="ml-auto flex min-h-11 items-center gap-1 rounded-full border border-white/10 px-3 py-1 normal-case text-white/70"
+            className="glass-pill ml-auto flex min-h-11 items-center gap-1 rounded-full px-3 py-1 normal-case text-white/70"
           >
             <RotateCcw size={14} aria-hidden="true" />
             Réinitialiser
@@ -191,7 +191,7 @@ export default function SearchExplorer() {
             id="sort-mode"
             value={sortMode}
             onChange={(e) => setSortMode(e.target.value as SortMode)}
-            className="min-h-11 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
+            className="glass-input min-h-11 rounded-full px-3 py-1.5 text-xs text-white/80"
           >
             <option value="tendance">Trier par tendance</option>
             <option value="note">Trier par note</option>
@@ -207,8 +207,8 @@ export default function SearchExplorer() {
               key={g.id}
               aria-pressed={genre === g.id}
               onClick={() => setGenre(genre === g.id ? null : g.id)}
-              className={`flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1.5 text-xs backdrop-blur ${
-                genre === g.id ? 'bg-accent text-black' : 'bg-surface/60 text-white/80'
+              className={`glass-pill flex min-h-11 items-center rounded-full px-3 py-1.5 text-xs ${
+                genre === g.id ? 'glass-pill-active text-white' : 'text-white/80'
               }`}
             >
               {g.name}
@@ -221,7 +221,7 @@ export default function SearchExplorer() {
         <select
           value={minRating}
           onChange={(e) => setMinRating(Number(e.target.value))}
-          className="min-h-11 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
+          className="glass-input min-h-11 rounded-full px-3 py-1.5 text-xs text-white/80"
         >
           <option value={0}>Note minimum</option>
           <option value={5}>5+</option>
@@ -231,7 +231,7 @@ export default function SearchExplorer() {
         <select
           value={year}
           onChange={(e) => setYear(Number(e.target.value))}
-          className="min-h-11 rounded-full border border-white/10 bg-surface/60 px-3 py-1.5 text-xs text-white/80"
+          className="glass-input min-h-11 rounded-full px-3 py-1.5 text-xs text-white/80"
         >
           <option value={0}>Année</option>
           {YEAR_OPTIONS.map((y) => (

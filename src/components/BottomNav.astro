@@ -5,19 +5,20 @@ import { navIcons } from '../lib/navIcons';
 const currentPath = Astro.url.pathname;
 ---
 <nav
-  class="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-white/10 bg-surface/95 py-2 backdrop-blur md:hidden"
+  class="glass-strong fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around py-2 md:hidden"
   style="padding-bottom: env(safe-area-inset-bottom)"
   aria-label="Navigation mobile"
 >
   {navItems.map((item) => {
     const Icon = navIcons[item.icon];
+    const active = currentPath === item.href;
     return (
       <a
         href={item.href}
-        class={`flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 text-[10px] ${
-          currentPath === item.href ? 'text-white' : 'text-white/70'
+        class={`flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1 text-[10px] ${
+          active ? 'glass-pill glass-pill-active text-white' : 'text-white/70'
         }`}
-        aria-current={currentPath === item.href ? 'page' : undefined}
+        aria-current={active ? 'page' : undefined}
       >
         <Icon size={20} aria-hidden="true" />
         {item.label}

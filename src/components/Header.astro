@@ -4,16 +4,19 @@ import { navIcons } from '../lib/navIcons';
 
 const currentPath = Astro.url.pathname;
 ---
-<header class="sticky top-0 z-40 hidden items-center justify-between border-b border-white/10 bg-bg/80 px-8 py-2 backdrop-blur md:flex">
+<header class="glass-strong sticky top-0 z-40 hidden items-center justify-between px-8 py-2 md:flex">
   <a href="/" class="flex min-h-11 items-center font-display text-xl">CineScope</a>
-  <nav class="flex gap-6 text-sm text-white/70" aria-label="Navigation principale">
+  <nav class="flex gap-2 text-sm text-white/70" aria-label="Navigation principale">
     {navItems.map((item) => {
       const Icon = navIcons[item.icon];
+      const active = currentPath === item.href;
       return (
         <a
           href={item.href}
-          class={`flex min-h-11 items-center gap-1.5 px-2 ${currentPath === item.href ? 'text-white' : 'hover:text-white'}`}
-          aria-current={currentPath === item.href ? 'page' : undefined}
+          class={`flex min-h-11 items-center gap-1.5 rounded-full px-3 ${
+            active ? 'glass-pill glass-pill-active text-white' : 'hover:text-white'
+          }`}
+          aria-current={active ? 'page' : undefined}
         >
           <Icon size={16} aria-hidden="true" />
           {item.label}

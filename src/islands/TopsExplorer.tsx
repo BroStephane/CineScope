@@ -103,8 +103,8 @@ export default function TopsExplorer() {
             href={buildHref(t.id, null, 1)}
             role="tab"
             aria-selected={tab === t.id}
-            className={`flex min-h-11 items-center rounded-full border border-white/10 px-4 py-1.5 text-sm ${
-              tab === t.id ? 'bg-accent text-black' : 'bg-surface/60 text-white/80'
+            className={`glass-pill flex min-h-11 items-center rounded-full px-4 py-1.5 text-sm ${
+              tab === t.id ? 'glass-pill-active text-white' : 'text-white/80'
             }`}
           >
             {t.label}
@@ -118,8 +118,8 @@ export default function TopsExplorer() {
             <a
               key={g.id}
               href={buildHref('top-genre', g.id, 1)}
-              className={`flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1.5 text-xs ${
-                genre === g.id ? 'bg-accent text-black' : 'bg-surface/60 text-white/80'
+              className={`glass-pill flex min-h-11 items-center rounded-full px-3 py-1.5 text-xs ${
+                genre === g.id ? 'glass-pill-active text-white' : 'text-white/80'
               }`}
             >
               {g.name}

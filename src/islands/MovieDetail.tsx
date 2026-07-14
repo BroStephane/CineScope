@@ -60,7 +60,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
           <img src={backdrop} alt="" className="h-full w-full object-cover" />
         </div>
       )}
-      <div className="px-4 py-6 md:px-8">
+      <div className={`glass relative z-10 rounded-t-3xl px-4 py-6 md:px-8 ${backdrop ? '-mt-12 md:-mt-16' : ''}`}>
         <h1 className="font-display text-2xl md:text-4xl">{movie.title}</h1>
         <p className="mt-1 flex items-center gap-1 text-sm text-white/60">
           {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
@@ -79,8 +79,8 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
         <button
           onClick={toggleFavorite}
           aria-pressed={isFavorite}
-          className={`mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold ${
-            isFavorite ? 'bg-accent text-black' : 'border border-white/20 text-white'
+          className={`glass-pill mt-4 flex min-h-11 items-center gap-2 rounded-full px-6 py-2 text-sm font-semibold ${
+            isFavorite ? 'glass-pill-active text-white' : 'text-white'
           }`}
         >
           {isFavorite ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}

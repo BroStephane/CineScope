@@ -151,7 +151,7 @@ export default function ProfileView() {
 
       <button
         onClick={handleReset}
-        className="mt-10 min-h-11 rounded-full border border-red-500/40 px-6 py-2 text-sm text-red-400"
+        className="mt-10 min-h-11 rounded-full border border-red-500/40 bg-red-500/5 px-6 py-2 text-sm text-red-400 backdrop-blur-md"
       >
         Vider mes données
       </button>

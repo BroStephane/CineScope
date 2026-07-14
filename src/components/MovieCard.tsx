@@ -7,7 +7,7 @@ export default function MovieCard({ movie }: { movie: TMDBMovie }) {
       href={`/movie/${movie.id}`}
       className="block"
     >
-      <div className="aspect-[2/3] overflow-hidden rounded-xl bg-surface">
+      <div className="glass-card aspect-[2/3] overflow-hidden rounded-xl bg-surface">
         {poster ? (
           <img src={poster} alt="" loading="lazy" className="h-full w-full object-cover" />
         ) : (

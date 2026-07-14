@@ -20,7 +20,7 @@ export default function Pagination({ page, totalPages, buildHref }: Props) {
       {hasPrev ? (
         <a
           href={buildHref(page - 1)}
-          className="flex min-h-11 items-center gap-1 rounded-full border border-white/10 px-4 py-2 text-white/80"
+          className="glass-pill flex min-h-11 items-center gap-1 rounded-full px-4 py-2 text-white/80"
         >
           <ChevronLeft size={16} aria-hidden="true" />
           Précédent
@@ -37,7 +37,7 @@ export default function Pagination({ page, totalPages, buildHref }: Props) {
       {hasNext ? (
         <a
           href={buildHref(page + 1)}
-          className="flex min-h-11 items-center gap-1 rounded-full border border-white/10 px-4 py-2 text-white/80"
+          className="glass-pill flex min-h-11 items-center gap-1 rounded-full px-4 py-2 text-white/80"
         >
           Suivant
           <ChevronRight size={16} aria-hidden="true" />
