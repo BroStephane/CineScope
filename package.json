@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "npm": "10.9.2"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
