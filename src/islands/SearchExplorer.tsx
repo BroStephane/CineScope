@@ -105,6 +105,7 @@ export default function SearchExplorer() {
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel || pourVousUnavailable || page >= totalPages) return;
+    let cancelled = false;
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0]?.isIntersecting || fetchingMoreRef.current) return;
@@ -113,21 +114,27 @@ export default function SearchExplorer() {
         setLoading(true);
         buildRequest(nextPage)
           .then((data) => {
+            if (cancelled) return;
             const results = isPourVous ? excludeFavorites(data.results, profile) : data.results;
             setMovies((prev) => [...prev, ...results]);
             setPage(nextPage);
             setTotalPages(data.total_pages);
           })
-          .catch(() => setError(true))
+          .catch(() => {
+            if (!cancelled) setError(true);
+          })
           .finally(() => {
-            setLoading(false);
+            if (!cancelled) setLoading(false);
             fetchingMoreRef.current = false;
           });
       },
       { rootMargin: '400px' }
     );
     observer.observe(sentinel);
-    return () => observer.disconnect();
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, totalPages, pourVousUnavailable]);
 
