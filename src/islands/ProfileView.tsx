@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useStore } from '@nanostores/react';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, Star } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
 import { profileStore, resetProfile, exportProfile, importProfile } from '../stores/profileStore';
 import { getGenres, getMovieDetail, type TMDBMovie, type TMDBMovieDetail } from '../lib/tmdb';
@@ -110,6 +110,9 @@ export default function ProfileView() {
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
   const maxScore = sortedGenres[0]?.[1] ?? 1;
+  const ratingValues = Object.values(profile.ratings ?? {});
+  const ratingCount = ratingValues.length;
+  const averageRating = ratingCount > 0 ? ratingValues.reduce((sum, r) => sum + r, 0) / ratingCount : 0;
 
   async function handleReset() {
     if (!confirm('Vider toutes vos données locales (favoris, scores) ?')) return;
@@ -156,6 +159,13 @@ export default function ProfileView() {
 
       <section className="mt-6">
         <h2 className="mb-3 font-display text-lg">Genres préférés</h2>
+        {ratingCount > 0 && (
+          <p className="mb-3 flex items-center gap-1 text-xs text-white/50">
+            {ratingCount} film{ratingCount > 1 ? 's' : ''} noté{ratingCount > 1 ? 's' : ''}, moyenne{' '}
+            {averageRating.toFixed(1)}
+            <Star size={12} className="fill-current text-accent" aria-hidden="true" />
+          </p>
+        )}
         {sortedGenres.length === 0 && <p className="text-sm text-white/50">Explorez des films pour construire votre profil.</p>}
         <div className="space-y-2">
           {sortedGenres.map(([id, score]) => (
