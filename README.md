@@ -31,13 +31,13 @@ Aucun compte, aucun tracking, aucune donnée qui quitte l'appareil — tout l'é
 2. Copier `.env.example` vers `.env` et renseigner `PUBLIC_TMDB_API_KEY` avec une clé API TMDB v3 (https://www.themoviedb.org/settings/api).
 3. `npm run dev` puis ouvrir `http://localhost:4321`.
 
-### Note sur la production : Vercel adapter requis
+### Note sur la production : Cloudflare adapter requis
 
-Le projet utilise l'adaptateur Vercel (`@astrojs/vercel`) pour supporter le rendu à la demande de la page de détail du film (`/movie/[id]`). Cela signifie que :
+Le projet utilise l'adaptateur Cloudflare (`@astrojs/cloudflare`) pour supporter le rendu à la demande de la page de détail du film (`/movie/[id]`) et de la page personne (`/personne/[id]`). Cela signifie que :
 
 - **`npm run preview` ne fonctionne pas** : cet outil intégré d'Astro ne supporte pas les adaptateurs (contrairement à `npm run build`).
-- Pour tester une build de production localement, utilisez `npm run build` suivi de `vercel dev` (si vous avez la CLI Vercel installée) ou déployez simplement sur Vercel pour vérifier.
-- **Le déploiement doit se faire sur Vercel** (ou une plateforme avec un adaptateur Astro équivalent) — ce n'est plus optionnel.
+- Pour tester une build de production localement, utilisez `npm run build` suivi de `npx wrangler dev` — cela exécute le Worker sur le vrai runtime Cloudflare (workerd) en local, à `http://127.0.0.1:8788` par défaut.
+- **Le déploiement doit se faire sur Cloudflare Workers** (ou une plateforme avec un adaptateur Astro équivalent) — ce n'est plus optionnel. Voir la section [Déploiement](#déploiement) : `@astrojs/cloudflare` génère un Worker avec assets statiques, pas une build compatible avec le produit Cloudflare Pages historique (dashboard Git-integration classique) — utilisez `wrangler deploy` ou un projet "Workers" connecté à Git.
 
 ## Tests
 
@@ -51,15 +51,23 @@ La clé API TMDB est exposée côté client (obligatoire pour un site 100% serve
 
 1. Aller sur https://www.themoviedb.org/settings/api.
 2. Ouvrir les paramètres de l'application/clé utilisée.
-3. Configurer la restriction "Approved Domains" / "HTTP Referrer" pour n'autoriser que le nom de domaine de production final (ex. `cinescope.vercel.app`).
+3. Configurer la restriction "Approved Domains" / "HTTP Referrer" pour n'autoriser que le nom de domaine de production final (ex. `cinescope.<votre-sous-domaine>.workers.dev` ou votre domaine personnalisé).
 4. Ne jamais committer le fichier `.env` (déjà exclu via `.gitignore`).
 
 ## Déploiement
 
-Déployé sur **Vercel uniquement** via intégration Git continue. Avant de déployer :
+Déployé sur **Cloudflare Workers** (adapter `@astrojs/cloudflare`, config dans `wrangler.jsonc` à la racine). `npm run build` produit `dist/server/entry.mjs` (le Worker) + `dist/client/` (les assets statiques, servis via le binding `ASSETS`) ; `wrangler.jsonc` référence ces deux chemins.
 
-1. Définir `PUBLIC_TMDB_API_KEY` dans les variables d'environnement du projet Vercel (Project Settings → Environment Variables) — ne pas la committer dans le dépôt.
+**Option A — CLI locale (`wrangler deploy`)**
 
-2. **Service worker et support hors-ligne** : le projet utilise une étape de build personnalisée (définie dans `astro.config.mjs` via un hook `astro:build:done`) pour compiler le service worker (`src/sw.ts`). Cette étape est requise pour que le support PWA et hors-ligne fonctionne. Si `dist/client/sw.js` n'apparaît pas après `npm run build`, consultez les commentaires détaillés dans `astro.config.mjs` pour le dépannage.
+1. `npx wrangler login` (une seule fois, ouvre une fenêtre pour autoriser l'accès à votre compte Cloudflare).
+2. Définir `PUBLIC_TMDB_API_KEY` : `npx wrangler secret put PUBLIC_TMDB_API_KEY` — ne pas la committer. Comme c'est une variable `PUBLIC_*` inlinée côté client au build, elle doit aussi être présente dans `.env` localement au moment du `npm run build` (voir "Démarrage" ci-dessus) ; le secret Cloudflare ne couvre que l'exécution du Worker lui-même, pas le contenu déjà buildé.
+3. `npm run deploy` (= `astro build && wrangler deploy`).
 
-3. **Icons PWA** : le projet inclut un manifest PWA avec des références à trois fichiers PNG (`public/icons/icon-192.png`, `icon-512.png`, `icon-512-maskable.png`), déjà générés et committés à partir des sources SVG (`public/icons/icon.svg` pour les icônes standard, `public/icons/icon-maskable.svg` pour la variante "maskable" avec sa marge de sécurité). Pour les régénérer après une modification des SVG, exécutez `node scripts/generate-icons.mjs` (nécessite le package `playwright` et son navigateur Chromium — `npx playwright install chromium` si besoin).
+**Option B — Projet "Workers" connecté à Git (build continue)**
+
+Dans le dashboard Cloudflare : Compute (Workers) → créez un Worker connecté à ce dépôt Git (pas un projet "Pages" classique — l'adapter Cloudflare d'Astro cible les Workers). Build command : `npm run build`. Définissez `PUBLIC_TMDB_API_KEY` dans les variables de build du projet (nécessaire pour que la valeur soit inlinée dans le bundle client à la compilation).
+
+1. **Service worker et support hors-ligne** : le projet utilise une étape de build personnalisée (définie dans `astro.config.mjs` via un hook `astro:build:done`) pour compiler le service worker (`src/sw.ts`). Cette étape est requise pour que le support PWA et hors-ligne fonctionne. Si `dist/client/sw.js` n'apparaît pas après `npm run build`, consultez les commentaires détaillés dans `astro.config.mjs` pour le dépannage.
+
+2. **Icons PWA** : le projet inclut un manifest PWA avec des références à trois fichiers PNG (`public/icons/icon-192.png`, `icon-512.png`, `icon-512-maskable.png`), déjà générés et committés à partir des sources SVG (`public/icons/icon.svg` pour les icônes standard, `public/icons/icon-maskable.svg` pour la variante "maskable" avec sa marge de sécurité). Pour les régénérer après une modification des SVG, exécutez `node scripts/generate-icons.mjs` (nécessite le package `playwright` et son navigateur Chromium — `npx playwright install chromium` si besoin).

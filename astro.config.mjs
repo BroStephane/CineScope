@@ -1,13 +1,13 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import vercel from '@astrojs/vercel';
+import cloudflare from '@astrojs/cloudflare';
 import { VitePWA } from 'vite-plugin-pwa';
 
 // vite-plugin-pwa's `injectManifest` build step (the one that actually bundles
 // `src/sw.ts` — resolving its `workbox-*` imports and compiling out the TS
 // syntax — then writes the final sw.js) only runs from a `closeBundle` hook
-// that is gated on `!viteConfig.build.ssr`. Because the Vercel adapter puts
+// that is gated on `!viteConfig.build.ssr`. Because the Cloudflare adapter puts
 // Astro in "server" output mode, every one of Astro's internal Vite
 // sub-builds runs with `build.ssr === true` (verified by instrumenting the
 // plugin locally: all three "Building server entrypoints" passes reported
@@ -32,10 +32,11 @@ import { VitePWA } from 'vite-plugin-pwa';
 // sub-builds resolves to `dist/server/` (the SSR function bundle), not the
 // static asset directory Astro actually serves from. Pinning it explicitly
 // makes the plugin glob the right directory for its precache manifest and
-// write sw.js next to manifest.webmanifest in `dist/client/`, which the
-// Vercel adapter then copies into `.vercel/output/static/` along with
-// everything else (confirmed: our build:done hook runs and logs before the
-// adapter's "Copying static files to .vercel/output/static" step).
+// write sw.js next to manifest.webmanifest in `dist/client/` — the exact
+// directory the Cloudflare adapter's generated `wrangler.json` points its
+// `assets.directory` at (`dist/server/wrangler.json` → `"../client"`), so
+// no further copying step is needed (confirmed via `wrangler dev`: sw.js,
+// manifest.webmanifest and every prerendered route serve correctly).
 const pwaPlugins = VitePWA({
   strategies: 'injectManifest',
   srcDir: 'src',
@@ -83,13 +84,15 @@ function pwaServiceWorkerIntegration() {
 }
 
 export default defineConfig({
-  // Output stays static by default (SSG) for every route. The Vercel adapter
-  // is only needed so the on-demand routes (`/movie/[id]` and `/personne/[id]`,
-  // which set `export const prerender = false` since their ids aren't known at
-  // build time and all of their data is fetched client-side from TMDB) can be
-  // served — Astro requires an adapter for any non-prerendered route, even
-  // though the rest of the site remains fully static/serverless.
-  adapter: vercel(),
+  // Output stays static by default (SSG) for every route. The Cloudflare
+  // adapter is only needed so the on-demand routes (`/movie/[id]` and
+  // `/personne/[id]`, which set `export const prerender = false` since their
+  // ids aren't known at build time and all of their data is fetched
+  // client-side from TMDB) can be served — Astro requires an adapter for any
+  // non-prerendered route, even though the rest of the site remains fully
+  // static/serverless. Deploys to Cloudflare Workers (`wrangler deploy`),
+  // not Cloudflare Pages — see README for why.
+  adapter: cloudflare(),
   integrations: [react(), pwaServiceWorkerIntegration()],
   vite: {
     plugins: [tailwindcss(), ...pwaPlugins],

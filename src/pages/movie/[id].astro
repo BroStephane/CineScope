@@ -1,7 +1,7 @@
 ---
 // This route's content is entirely client-fetched from TMDB (movie ids are
 // unknown at build time, so a static getStaticPaths() list isn't possible).
-// Opt it out of prerendering so Astro serves it on-demand via the Vercel
+// Opt it out of prerendering so Astro serves it on-demand via the Cloudflare
 // adapter instead of requiring a full static path list.
 export const prerender = false;
 
