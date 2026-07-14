@@ -2,6 +2,28 @@
 
 PWA cinéma serverless (Astro + React + TMDB), sans backend ni base de données. Toutes les données utilisateur (favoris, scores de recommandation) sont stockées dans le `localStorage` du navigateur.
 
+## Description
+
+CineScope est une application de catalogue cinéma alimentée par l'API TMDB — un catalogue mondial de films consultable, filtrable et personnalisable, sans jamais créer de compte ni faire transiter la moindre donnée personnelle par un serveur.
+
+**Explorer**
+- Accueil avec tendances du jour, films au cinéma, populaires, mieux notés et prochainement, chacun avec sa page dédiée à défilement infini.
+- Recherche texte + filtres cumulables : genres (plusieurs à la fois), année, note minimum, langue originale, durée, avec trois modes de tri (tendance, note, "pour vous").
+- Tops : mieux notés, top par genre, top de l'année.
+- Fiches réalisateur/acteur avec filmographie complète.
+
+**Décider quoi regarder**
+- Fiche film détaillée : casting, bande-annonce, films similaires, franchise/collection, où regarder (streaming/location/achat), partage.
+- Découverte : swipez les films façon Tinder (au clavier ou au doigt) pour construire votre liste "à voir", propulsé par un algorithme de recommandation local basé sur vos goûts.
+- Section "Pour vous" sur l'accueil et la recherche, basée sur vos genres préférés.
+
+**Se souvenir**
+- Favoris, historique des films vus, notes personnelles (1 à 5 étoiles) et "Mes meilleurs films" (vos coups de cœur 4-5★), le tout consultable et modifiable depuis votre profil.
+- Sauvegarde manuelle : exportez/importez vos données en JSON pour les transférer d'un appareil à l'autre.
+- Application installable (PWA), avec vos favoris disponibles hors-ligne.
+
+Aucun compte, aucun tracking, aucune donnée qui quitte l'appareil — tout l'état vit dans le `localStorage` du navigateur.
+
 ## Démarrage
 
 1. `npm install`

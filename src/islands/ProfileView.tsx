@@ -15,6 +15,8 @@ export default function ProfileView() {
   const [toWatchError, setToWatchError] = useState(false);
   const [historyMovies, setHistoryMovies] = useState<TMDBMovie[] | null>(null);
   const [historyError, setHistoryError] = useState(false);
+  const [bestMovies, setBestMovies] = useState<TMDBMovie[] | null>(null);
+  const [bestError, setBestError] = useState(false);
   const [resetConfirmed, setResetConfirmed] = useState(false);
   const [importError, setImportError] = useState(false);
   const [importSuccess, setImportSuccess] = useState(false);
@@ -106,6 +108,37 @@ export default function ProfileView() {
     };
   }, [(profile.watched ?? []).join(',')]);
 
+  // "Mes meilleurs films" is derived from ratings rather than being its own
+  // list — rating a movie 4-5★ *is* adding it to your best-of, no separate
+  // toggle needed. Sorted best-first, ties broken by whichever was rated.
+  const bestIds = Object.entries(profile.ratings ?? {})
+    .filter(([, rating]) => rating >= 4)
+    .sort(([, a], [, b]) => b - a)
+    .map(([id]) => Number(id));
+
+  useEffect(() => {
+    let cancelled = false;
+    if (bestIds.length === 0) {
+      setBestMovies([]);
+      setBestError(false);
+      return;
+    }
+    setBestMovies(null);
+    setBestError(false);
+    Promise.allSettled(bestIds.map((id) => getMovieDetail(id))).then((results) => {
+      if (cancelled) return;
+      const movies = results
+        .filter((r): r is PromiseFulfilledResult<TMDBMovieDetail> => r.status === 'fulfilled')
+        .map((r) => r.value);
+      if (movies.length === 0 && results.length > 0) setBestError(true);
+      setBestMovies(movies);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bestIds.join(',')]);
+
   const sortedGenres = Object.entries(profile.genres)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
@@ -181,6 +214,22 @@ export default function ProfileView() {
                 />
               </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
+          Mes meilleurs films {bestMovies !== null && `(${bestMovies.length})`}
+        </h2>
+        {bestError && <p className="text-sm text-white/50">Impossible de charger vos meilleurs films.</p>}
+        {!bestError && bestMovies === null && <p className="text-sm text-white/50">Chargement…</p>}
+        {!bestError && bestMovies?.length === 0 && (
+          <p className="text-sm text-white/50">Notez un film 4 ou 5★ depuis sa fiche pour le voir apparaître ici.</p>
+        )}
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {bestMovies?.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} />
           ))}
         </div>
       </section>
