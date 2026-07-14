@@ -9,9 +9,22 @@ export default function RecommendedRow() {
   const profile = useStore(profileStore);
   const [rawResults, setRawResults] = useState<TMDBMovie[] | null>(null);
   const [error, setError] = useState(false);
+  // profileStore reads localStorage at module load, so on the client it
+  // already holds the real profile by the time this first renders — but
+  // the server-rendered HTML was built from an empty profile (no
+  // localStorage there). Gating the profile-dependent branch below on
+  // `mounted` keeps the very first client render identical to the SSR
+  // output (both treat genres as unknown), avoiding a hydration mismatch;
+  // the real content then appears on the next render, right after mount.
+  const [mounted, setMounted] = useState(false);
   const genres = topGenres(profile, 2);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (genres.length === 0) {
       setRawResults([]);
       return;
@@ -29,9 +42,9 @@ export default function RecommendedRow() {
     return () => {
       cancelled = true;
     };
-  }, [genres.join(',')]);
+  }, [mounted, genres.join(',')]);
 
-  if (genres.length === 0) return null;
+  if (!mounted || genres.length === 0) return null;
 
   const movies = rawResults ? excludeFavorites(rawResults, profile) : null;
 

@@ -5,6 +5,8 @@ import MovieCard from '../components/MovieCard';
 import { profileStore, resetProfile, exportProfile, importProfile } from '../stores/profileStore';
 import { getGenres, getMovieDetail, type TMDBMovie, type TMDBMovieDetail } from '../lib/tmdb';
 import { FAVORITES_CACHE_NAME, FAVORITES_DATA_CACHE_NAME, getCachedFavoriteMovieData } from '../lib/favoritesCache';
+import { isForgotten } from '../lib/recommend';
+import SurpriseMeButton from '../components/SurpriseMeButton';
 
 export default function ProfileView() {
   const profile = useStore(profileStore);
@@ -259,9 +261,24 @@ export default function ProfileView() {
         {!toWatchError && toWatchMovies?.length === 0 && (
           <p className="text-sm text-white/50">Swipez des films dans Découverte pour construire votre liste.</p>
         )}
+        {!toWatchError && toWatchMovies !== null && toWatchMovies.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <SurpriseMeButton />
+            <a
+              href="/duel"
+              className="glass-pill flex min-h-11 items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold text-white"
+            >
+              Duel de films
+            </a>
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
           {toWatchMovies?.map((movie) => (
-            <MovieCard key={movie.id} movie={movie} />
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              badge={isForgotten(profile, movie.id) ? 'Oublié depuis longtemps' : undefined}
+            />
           ))}
         </div>
       </section>

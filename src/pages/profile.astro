@@ -3,5 +3,5 @@ import Layout from '../components/Layout.astro';
 import ProfileView from '../islands/ProfileView';
 ---
 <Layout title="Profil">
-  <ProfileView client:load />
+  <ProfileView client:only="react" />
 </Layout>

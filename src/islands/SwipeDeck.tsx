@@ -5,11 +5,33 @@ import { Heart, X, Star } from 'lucide-react';
 import { discoverMovies, getPopular, tmdbImageUrl, type TMDBMovie } from '../lib/tmdb';
 import { topGenres, excludeSwiped, excludeWatched } from '../lib/recommend';
 import { profileStore, swipeLikeMovie, swipeDislikeMovie, clearSwipeDislikes } from '../stores/profileStore';
+import { getItem, setItem, removeItem } from '../lib/storage';
 
 const MAX_SWIPE_PAGES = 20;
 const BUFFER_LOW_WATERMARK = 5;
 const SWIPE_THRESHOLD = 120;
 const SWIPE_VELOCITY_THRESHOLD = 800;
+const SESSION_KEY = 'cinescope:swipe-session';
+
+interface SwipeSession {
+  deck: TMDBMovie[];
+  page: number;
+}
+
+// Resumes the deck where the user left off instead of re-querying from page
+// 1 every visit — swipedLiked/swipedDisliked exclusion is already permanent
+// via profileStore, this just avoids redundant fetching/re-filtering.
+function loadSession(profile: ReturnType<typeof profileStore.get>): SwipeSession | null {
+  const raw = getItem(SESSION_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as SwipeSession;
+    if (!Array.isArray(parsed.deck) || typeof parsed.page !== 'number') return null;
+    return { deck: excludeWatched(excludeSwiped(parsed.deck, profile), profile), page: parsed.page };
+  } catch {
+    return null;
+  }
+}
 
 function SwipeCard({ movie }: { movie: TMDBMovie }) {
   const poster = tmdbImageUrl(movie.poster_path, 'w500');
@@ -33,8 +55,9 @@ function SwipeCard({ movie }: { movie: TMDBMovie }) {
 
 export default function SwipeDeck() {
   const profile = useStore(profileStore);
-  const [deck, setDeck] = useState<TMDBMovie[]>([]);
-  const [page, setPage] = useState(1);
+  const initialSession = useRef(loadSession(profileStore.get())).current;
+  const [deck, setDeck] = useState<TMDBMovie[]>(initialSession?.deck ?? []);
+  const [page, setPage] = useState(initialSession?.page ?? 1);
   const [exhausted, setExhausted] = useState(false);
   const loadingRef = useRef(false);
   const x = useMotionValue(0);
@@ -75,6 +98,14 @@ export default function SwipeDeck() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deck.length, page, exhausted, genres.join(',')]);
 
+  useEffect(() => {
+    if (deck.length === 0 && page <= 1) {
+      removeItem(SESSION_KEY);
+      return;
+    }
+    setItem(SESSION_KEY, JSON.stringify({ deck, page } satisfies SwipeSession));
+  }, [deck, page]);
+
   const topMovie = deck[0];
   const nextMovie = deck[1];
 
@@ -100,7 +131,9 @@ export default function SwipeDeck() {
   function restart() {
     clearSwipeDislikes();
     setExhausted(false);
+    setDeck([]);
     setPage(1);
+    removeItem(SESSION_KEY);
   }
 
   useEffect(() => {

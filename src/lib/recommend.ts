@@ -6,6 +6,10 @@ export interface ProfileScores {
   swipedDisliked?: number[];
   watched?: number[];
   ratings?: Record<number, number>;
+  // movieId -> timestamp (ms) it was added to swipedLiked. Only populated
+  // going forward — entries swiped before this field existed have no key,
+  // so "forgotten" checks treat missing entries as unknown age, not old.
+  swipedLikedAt?: Record<number, number>;
 }
 
 export function createEmptyProfile(): ProfileScores {
@@ -17,6 +21,7 @@ export function createEmptyProfile(): ProfileScores {
     swipedDisliked: [],
     watched: [],
     ratings: {},
+    swipedLikedAt: {},
   };
 }
 
@@ -74,14 +79,34 @@ const SWIPE_LIKE_GENRE_POINTS = 2;
 // Lighter weight than recordFavorite (a swipe is a lighter signal than an
 // explicit favorite) and doesn't credit a director — the swipe deck works
 // from list-endpoint movies, which only carry genre_ids, not crew.
-export function recordSwipeLike(profile: ProfileScores, movieId: number, genreIds: number[]): ProfileScores {
+// `timestamp` defaults to Date.now() but is an explicit param so tests can
+// pin it — it also powers the "forgotten for a long time" badge.
+export function recordSwipeLike(
+  profile: ProfileScores,
+  movieId: number,
+  genreIds: number[],
+  timestamp = Date.now()
+): ProfileScores {
   const genres = { ...profile.genres };
   for (const id of genreIds) {
     genres[id] = (genres[id] ?? 0) + SWIPE_LIKE_GENRE_POINTS;
   }
   const swipedLiked = profile.swipedLiked ?? [];
   const nextSwipedLiked = swipedLiked.includes(movieId) ? swipedLiked : [...swipedLiked, movieId];
-  return { ...profile, genres, swipedLiked: nextSwipedLiked };
+  const swipedLikedAt = { ...(profile.swipedLikedAt ?? {}) };
+  if (!(movieId in swipedLikedAt)) swipedLikedAt[movieId] = timestamp;
+  return { ...profile, genres, swipedLiked: nextSwipedLiked, swipedLikedAt };
+}
+
+const FORGOTTEN_THRESHOLD_MS = 45 * 24 * 60 * 60 * 1000; // 45 days
+
+// True only when we actually know the movie was added long ago — missing
+// timestamps (pre-existing entries, or ones added via favorites/import) are
+// treated as unknown age, not old, so we never claim knowledge we don't have.
+export function isForgotten(profile: ProfileScores, movieId: number, now = Date.now()): boolean {
+  const addedAt = profile.swipedLikedAt?.[movieId];
+  if (addedAt === undefined) return false;
+  return now - addedAt > FORGOTTEN_THRESHOLD_MS;
 }
 
 // Deliberately does not penalize genre scores — the algorithm only excludes

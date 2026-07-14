@@ -15,6 +15,7 @@ import {
   excludeWatched,
   recordRating,
   removeRating,
+  isForgotten,
 } from '../src/lib/recommend';
 
 describe('recordView', () => {
@@ -96,6 +97,37 @@ describe('recordSwipeLike', () => {
     profile = recordSwipeLike(profile, 200, [28]);
     expect(profile.swipedLiked).toEqual([200]);
     expect(profile.genres[28]).toBe(4);
+  });
+
+  it('records the given timestamp under swipedLikedAt', () => {
+    const profile = recordSwipeLike(createEmptyProfile(), 200, [28], 12345);
+    expect(profile.swipedLikedAt).toEqual({ 200: 12345 });
+  });
+
+  it('keeps the original timestamp when swiped again later', () => {
+    let profile = recordSwipeLike(createEmptyProfile(), 200, [28], 1000);
+    profile = recordSwipeLike(profile, 200, [28], 9999);
+    expect(profile.swipedLikedAt).toEqual({ 200: 1000 });
+  });
+});
+
+describe('isForgotten', () => {
+  const FORTY_SIX_DAYS = 46 * 24 * 60 * 60 * 1000;
+  const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
+
+  it('is true once added more than 45 days ago', () => {
+    const profile = recordSwipeLike(createEmptyProfile(), 200, [28], 0);
+    expect(isForgotten(profile, 200, FORTY_SIX_DAYS)).toBe(true);
+  });
+
+  it('is false when added recently', () => {
+    const profile = recordSwipeLike(createEmptyProfile(), 200, [28], 0);
+    expect(isForgotten(profile, 200, THIRTY_DAYS)).toBe(false);
+  });
+
+  it('is false when the timestamp is unknown (pre-existing entry)', () => {
+    const profile = { genres: {}, directors: {}, favorites: [], swipedLiked: [200] };
+    expect(isForgotten(profile, 200, FORTY_SIX_DAYS)).toBe(false);
   });
 });
 

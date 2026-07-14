@@ -3,11 +3,13 @@ import Layout from '../components/Layout.astro';
 import Logo from '../components/Logo.astro';
 import MovieBlock from '../islands/MovieBlock';
 import RecommendedRow from '../islands/RecommendedRow';
+import TonightWidget from '../islands/TonightWidget';
 ---
 <Layout title="Accueil">
   <h1 class="px-4 pb-2 pt-10 md:px-8">
     <Logo class="text-4xl md:text-5xl" />
   </h1>
+  <TonightWidget client:load />
   <RecommendedRow client:load />
   <MovieBlock client:load title="Tendances du jour" fetcher="trending" seeAllHref="/films/tendances" />
   <MovieBlock client:load title="Au cinéma" fetcher="nowPlaying" seeAllHref="/films/au-cinema" />

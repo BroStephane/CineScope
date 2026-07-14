@@ -5,6 +5,14 @@ import MovieCard from '../components/MovieCard';
 import { discoverMovies, searchMovies, getGenres, type DiscoverParams, type TMDBMovie } from '../lib/tmdb';
 import { profileStore } from '../stores/profileStore';
 import { topGenres, excludeFavorites, excludeWatched } from '../lib/recommend';
+import { MOODS } from '../lib/moods';
+
+function sameGenreSet(a: number[], b: number[]): boolean {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((id, i) => id === sortedB[i]);
+}
 
 interface Genre {
   id: number;
@@ -205,6 +213,10 @@ export default function SearchExplorer() {
     setSelectedGenreIds((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
   }
 
+  function toggleMood(genreIds: number[]) {
+    setSelectedGenreIds((prev) => (sameGenreSet(prev, genreIds) ? [] : genreIds));
+  }
+
   return (
     <div className="px-4 py-6 md:px-8">
       <h1 className="font-display text-2xl tracking-tight">Recherche</h1>
@@ -249,6 +261,23 @@ export default function SearchExplorer() {
             <option value="note">Trier par note</option>
             <option value="pour-vous">Trier par pour vous</option>
           </select>
+        </div>
+      )}
+
+      {sortMode !== 'pour-vous' && (
+        <div role="group" aria-label="Filtrer par humeur" className="mt-3 flex flex-wrap gap-2">
+          {MOODS.map((mood) => (
+            <button
+              key={mood.id}
+              aria-pressed={sameGenreSet(selectedGenreIds, mood.genreIds)}
+              onClick={() => toggleMood(mood.genreIds)}
+              className={`glass-pill flex min-h-11 items-center rounded-full px-3 py-1.5 text-xs ${
+                sameGenreSet(selectedGenreIds, mood.genreIds) ? 'glass-pill-active text-white' : 'text-white/80'
+              }`}
+            >
+              {mood.label}
+            </button>
+          ))}
         </div>
       )}
 

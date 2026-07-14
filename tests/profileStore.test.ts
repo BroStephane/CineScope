@@ -29,6 +29,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 
@@ -43,6 +44,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 
@@ -103,6 +105,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 
@@ -120,6 +123,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 
@@ -196,6 +200,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 
@@ -247,6 +252,7 @@ describe('profileStore', () => {
       swipedDisliked: [],
       watched: [],
       ratings: {},
+      swipedLikedAt: {},
     });
   });
 });

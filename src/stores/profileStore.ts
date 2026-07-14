@@ -40,6 +40,7 @@ function normalizeProfile(profile: ProfileScores): ProfileScores {
     swipedDisliked: profile.swipedDisliked ?? [],
     watched: profile.watched ?? [],
     ratings: profile.ratings ?? {},
+    swipedLikedAt: profile.swipedLikedAt ?? {},
   };
 }
 
