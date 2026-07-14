@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import MovieCard from '../components/MovieCard';
+import BackButton from '../components/BackButton';
 import {
   getPersonDetail,
   getPersonMovieCredits,
@@ -32,8 +33,20 @@ export default function PersonDetail({ personId }: { personId: number }) {
     };
   }, [personId]);
 
-  if (error) return <p className="px-4 py-8 text-white/60">Impossible de charger cette page.</p>;
-  if (!person || !credits) return <p className="px-4 py-8 text-white/60">Chargement…</p>;
+  if (error)
+    return (
+      <>
+        <BackButton />
+        <p className="px-4 py-8 text-white/60">Impossible de charger cette page.</p>
+      </>
+    );
+  if (!person || !credits)
+    return (
+      <>
+        <BackButton />
+        <p className="px-4 py-8 text-white/60">Chargement…</p>
+      </>
+    );
 
   const photo = tmdbImageUrl(person.profile_path, 'w342');
   const directed = credits.crew
@@ -44,7 +57,8 @@ export default function PersonDetail({ personId }: { personId: number }) {
   const bio = bioExpanded || !bioTooLong ? person.biography : `${person.biography.slice(0, BIOGRAPHY_PREVIEW_LENGTH)}…`;
 
   return (
-    <div className="px-4 py-6 md:px-8">
+    <div className="px-4 pb-6 pt-20 md:px-8 md:pt-28">
+      <BackButton />
       <div className="flex items-center gap-4">
         <div className="h-32 w-32 shrink-0 overflow-hidden rounded-full bg-surface">
           {photo && <img src={photo} alt="" className="h-full w-full object-cover" />}

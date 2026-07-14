@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { Star, Check, Plus, Eye, Share2 } from 'lucide-react';
 import MovieCard from '../components/MovieCard';
+import BackButton from '../components/BackButton';
 import {
   getMovieDetail,
   getCollection,
@@ -92,12 +93,25 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
     };
   }, [movie?.belongs_to_collection?.id]);
 
-  if (error) return <p className="px-4 py-8 text-white/60">Impossible de charger ce film.</p>;
-  if (!movie) return <p className="px-4 py-8 text-white/60">Chargement…</p>;
+  if (error)
+    return (
+      <>
+        <BackButton />
+        <p className="px-4 py-8 text-white/60">Impossible de charger ce film.</p>
+      </>
+    );
+  if (!movie)
+    return (
+      <>
+        <BackButton />
+        <p className="px-4 py-8 text-white/60">Chargement…</p>
+      </>
+    );
 
   const director = movie.credits?.crew.find((c) => c.job === 'Director');
   const trailer = movie.videos?.results.find((v) => v.site === 'YouTube' && v.type === 'Trailer');
   const backdrop = tmdbImageUrl(movie.backdrop_path, 'w1280');
+  const poster = tmdbImageUrl(movie.poster_path, 'w342');
   const genreIds = movie.genres.map((g) => g.id);
   const watchProviders = movie['watch/providers']?.results?.FR;
   const hasWatchProviders =
@@ -157,25 +171,74 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
 
   return (
     <article>
-      {backdrop && (
-        <div className="aspect-video w-full overflow-hidden">
-          <img src={backdrop} alt="" className="h-full w-full object-cover" />
-        </div>
-      )}
-      <div className={`glass relative z-10 rounded-t-3xl px-4 py-6 md:px-8 ${backdrop ? '-mt-12 md:-mt-16' : ''}`}>
-        <h1 className="font-display text-2xl tracking-tight md:text-4xl">{movie.title}</h1>
-        <p className="mt-1 flex items-center gap-1 text-sm text-white/60">
-          {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
-          <Star size={14} className="fill-current text-accent" aria-hidden="true" />
-          {movie.vote_average.toFixed(1)}
-        </p>
-        {director && (
-          <p className="mt-1 text-sm text-white/60">
-            Réalisé par{' '}
-            <a href={`/personne/${director.id}`} className="text-white underline">
-              {director.name}
-            </a>
+      <BackButton />
+      <div className="relative">
+        {backdrop && (
+          <div className="aspect-video w-full overflow-hidden md:aspect-21/9 md:max-h-140">
+            <img src={backdrop} alt="" className="h-full w-full object-cover" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg via-bg/10 to-transparent md:from-bg md:via-bg/30" />
+          </div>
+        )}
+
+        {backdrop && (
+          <div className="hidden md:absolute md:inset-x-0 md:bottom-0 md:flex md:items-end md:gap-6 md:px-8 md:pb-8">
+            {poster && (
+              <img
+                src={poster}
+                alt=""
+                className="w-40 shrink-0 rounded-xl shadow-2xl ring-1 ring-white/10 lg:w-48"
+              />
+            )}
+            <div className="pb-1">
+              <h1 className="font-display text-4xl tracking-tight drop-shadow-lg lg:text-5xl">{movie.title}</h1>
+              <p className="mt-2 flex items-center gap-1 text-white/80">
+                {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
+                <Star size={16} className="fill-current text-accent" aria-hidden="true" />
+                {movie.vote_average.toFixed(1)}
+              </p>
+              {director && (
+                <p className="mt-1 text-white/80">
+                  Réalisé par{' '}
+                  <a href={`/personne/${director.id}`} className="text-white underline">
+                    {director.name}
+                  </a>
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`glass relative z-10 rounded-t-3xl px-4 py-6 md:rounded-none md:px-8 md:py-8 ${
+          backdrop ? '-mt-12 md:mt-0' : 'pt-20 md:pt-28'
+        }`}
+      >
+        <div className={backdrop ? 'md:hidden' : ''}>
+          <h1 className="font-display text-2xl tracking-tight md:text-4xl">{movie.title}</h1>
+          <p className="mt-1 flex items-center gap-1 text-sm text-white/60">
+            {movie.release_date?.slice(0, 4)} · {movie.runtime} min ·
+            <Star size={14} className="fill-current text-accent" aria-hidden="true" />
+            {movie.vote_average.toFixed(1)}
           </p>
+          {director && (
+            <p className="mt-1 text-sm text-white/60">
+              Réalisé par{' '}
+              <a href={`/personne/${director.id}`} className="text-white underline">
+                {director.name}
+              </a>
+            </p>
+          )}
+        </div>
+
+        {movie.genres.length > 0 && (
+          <div className="mt-4 hidden flex-wrap gap-2 md:flex">
+            {movie.genres.map((g) => (
+              <span key={g.id} className="glass-pill rounded-full px-3 py-1 text-xs text-white/70">
+                {g.name}
+              </span>
+            ))}
+          </div>
         )}
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -231,7 +294,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
           </p>
         )}
 
-        <p className="mt-6 max-w-2xl text-white/80">{movie.overview}</p>
+        <p className="mt-6 max-w-2xl text-white/80 md:max-w-3xl">{movie.overview}</p>
 
         {hasWatchProviders && watchProviders && (
           <section className="mt-8">
