@@ -28,6 +28,7 @@ describe('profileStore', () => {
       swipedLiked: [],
       swipedDisliked: [],
       watched: [],
+      ratings: {},
     });
   });
 
@@ -41,6 +42,7 @@ describe('profileStore', () => {
       swipedLiked: [],
       swipedDisliked: [],
       watched: [],
+      ratings: {},
     });
   });
 
@@ -100,6 +102,7 @@ describe('profileStore', () => {
       swipedLiked: [],
       swipedDisliked: [],
       watched: [],
+      ratings: {},
     });
   });
 
@@ -116,6 +119,7 @@ describe('profileStore', () => {
       swipedLiked: [2],
       swipedDisliked: [],
       watched: [],
+      ratings: {},
     });
   });
 
@@ -191,6 +195,58 @@ describe('profileStore', () => {
       swipedLiked: [],
       swipedDisliked: [],
       watched: [],
+      ratings: {},
+    });
+  });
+
+  it('persists a rating across store reloads', async () => {
+    const mod1 = await import('../src/stores/profileStore');
+    mod1.rateMovie(77, 4, [28]);
+    expect(mod1.profileStore.get().ratings).toEqual({ 77: 4 });
+
+    vi.resetModules();
+    const mod2 = await import('../src/stores/profileStore');
+    expect(mod2.profileStore.get().ratings).toEqual({ 77: 4 });
+    expect(mod2.profileStore.get().genres[28]).toBe(4);
+  });
+
+  it('rateMovie only applies the delta when changing an existing rating', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.rateMovie(77, 3, [28]);
+    mod.rateMovie(77, 5, [28]);
+    expect(mod.profileStore.get().genres[28]).toBe(5);
+    expect(mod.profileStore.get().ratings).toEqual({ 77: 5 });
+  });
+
+  it('unrateMovie removes the rating and its genre points', async () => {
+    const mod = await import('../src/stores/profileStore');
+    mod.rateMovie(77, 4, [28]);
+    mod.unrateMovie(77, [28]);
+    expect(mod.profileStore.get().ratings).toEqual({});
+    expect(mod.profileStore.get().genres[28]).toBe(0);
+  });
+
+  it('migrates a profile stored before ratings existed', async () => {
+    window.localStorage.setItem(
+      'cinescope:profile',
+      JSON.stringify({
+        genres: { 28: 5 },
+        directors: {},
+        favorites: [10],
+        swipedLiked: [],
+        swipedDisliked: [],
+        watched: [],
+      })
+    );
+    const mod = await import('../src/stores/profileStore');
+    expect(mod.profileStore.get()).toEqual({
+      genres: { 28: 5 },
+      directors: {},
+      favorites: [10],
+      swipedLiked: [],
+      swipedDisliked: [],
+      watched: [],
+      ratings: {},
     });
   });
 });

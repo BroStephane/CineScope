@@ -9,6 +9,8 @@ import {
   resetSwipeDislikes,
   recordWatched,
   unwatch,
+  recordRating,
+  removeRating,
   type ProfileScores,
 } from '../lib/recommend';
 import { getItem, setItem } from '../lib/storage';
@@ -37,6 +39,7 @@ function normalizeProfile(profile: ProfileScores): ProfileScores {
     swipedLiked: profile.swipedLiked ?? [],
     swipedDisliked: profile.swipedDisliked ?? [],
     watched: profile.watched ?? [],
+    ratings: profile.ratings ?? {},
   };
 }
 
@@ -109,6 +112,18 @@ export function markWatched(movieId: number, genreIds: number[]): void {
 
 export function unmarkWatched(movieId: number): void {
   const next = unwatch(profileStore.get(), movieId);
+  profileStore.set(next);
+  persist(next);
+}
+
+export function rateMovie(movieId: number, rating: number, genreIds: number[]): void {
+  const next = recordRating(profileStore.get(), movieId, rating, genreIds);
+  profileStore.set(next);
+  persist(next);
+}
+
+export function unrateMovie(movieId: number, genreIds: number[]): void {
+  const next = removeRating(profileStore.get(), movieId, genreIds);
   profileStore.set(next);
   persist(next);
 }
