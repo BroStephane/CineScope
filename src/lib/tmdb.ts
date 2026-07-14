@@ -28,11 +28,26 @@ export interface TMDBVideo {
   type: string;
 }
 
+export interface TMDBWatchProvider {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string;
+}
+
+export interface TMDBWatchProviderRegion {
+  link: string;
+  flatrate?: TMDBWatchProvider[];
+  rent?: TMDBWatchProvider[];
+  buy?: TMDBWatchProvider[];
+}
+
 export interface TMDBMovieDetail extends TMDBMovie {
   runtime: number;
   genres: { id: number; name: string }[];
   credits?: { cast: TMDBCastMember[]; crew: TMDBCrewMember[] };
   videos?: { results: TMDBVideo[] };
+  similar?: TMDBListResponse<TMDBMovie>;
+  'watch/providers'?: { results: Record<string, TMDBWatchProviderRegion> };
 }
 
 export interface TMDBListResponse<T> {
@@ -94,7 +109,7 @@ export function getNowPlaying(page = 1, signal?: AbortSignal): Promise<TMDBListR
 }
 
 export function getMovieDetail(id: number, signal?: AbortSignal): Promise<TMDBMovieDetail> {
-  return tmdbFetch(`/movie/${id}`, { append_to_response: 'credits,videos' }, signal);
+  return tmdbFetch(`/movie/${id}`, { append_to_response: 'credits,videos,similar,watch/providers' }, signal);
 }
 
 export function searchMovies(query: string, page = 1, signal?: AbortSignal): Promise<TMDBListResponse<TMDBMovie>> {
