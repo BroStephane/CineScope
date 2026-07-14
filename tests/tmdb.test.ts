@@ -20,6 +20,19 @@ describe('buildDiscoverQuery', () => {
       'vote_average.gte': '7',
     });
   });
+
+  it('overrides sort_by when sortBy is provided', () => {
+    expect(buildDiscoverQuery({ sortBy: 'vote_average.desc' })).toEqual({
+      sort_by: 'vote_average.desc',
+    });
+  });
+
+  it('adds a minimum vote count filter', () => {
+    expect(buildDiscoverQuery({ minVoteCount: 300 })).toEqual({
+      sort_by: 'popularity.desc',
+      'vote_count.gte': '300',
+    });
+  });
 });
 
 describe('tmdbImageUrl', () => {

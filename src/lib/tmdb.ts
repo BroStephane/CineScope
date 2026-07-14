@@ -105,10 +105,12 @@ export interface DiscoverParams {
   genres?: number[];
   year?: number;
   minRating?: number;
+  minVoteCount?: number;
+  sortBy?: string;
 }
 
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
-  const query: Record<string, string> = { sort_by: 'popularity.desc' };
+  const query: Record<string, string> = { sort_by: params.sortBy ?? 'popularity.desc' };
   if (params.genres && params.genres.length > 0) {
     query.with_genres = params.genres.join(',');
   }
@@ -118,14 +120,18 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   if (params.minRating) {
     query['vote_average.gte'] = String(params.minRating);
   }
+  if (params.minVoteCount) {
+    query['vote_count.gte'] = String(params.minVoteCount);
+  }
   return query;
 }
 
 export function discoverMovies(
   params: DiscoverParams,
+  page = 1,
   signal?: AbortSignal
 ): Promise<TMDBListResponse<TMDBMovie>> {
-  return tmdbFetch('/discover/movie', buildDiscoverQuery(params), signal);
+  return tmdbFetch('/discover/movie', { ...buildDiscoverQuery(params), page: String(page) }, signal);
 }
 
 export function getGenres(signal?: AbortSignal): Promise<{ genres: { id: number; name: string }[] }> {
