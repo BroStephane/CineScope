@@ -2,10 +2,12 @@ export interface ProfileScores {
   genres: Record<number, number>;
   directors: Record<number, number>;
   favorites: number[];
+  swipedLiked?: number[];
+  swipedDisliked?: number[];
 }
 
 export function createEmptyProfile(): ProfileScores {
-  return { genres: {}, directors: {}, favorites: [] };
+  return { genres: {}, directors: {}, favorites: [], swipedLiked: [], swipedDisliked: [] };
 }
 
 // Intentionally called on every visit, unguarded — views are meant to accumulate as an engagement signal (unlike recordFavorite, a discrete action).
@@ -55,4 +57,40 @@ export function excludeFavorites<T extends { id: number }>(
   profile: ProfileScores
 ): T[] {
   return movies.filter((movie) => !profile.favorites.includes(movie.id));
+}
+
+const SWIPE_LIKE_GENRE_POINTS = 2;
+
+// Lighter weight than recordFavorite (a swipe is a lighter signal than an
+// explicit favorite) and doesn't credit a director — the swipe deck works
+// from list-endpoint movies, which only carry genre_ids, not crew.
+export function recordSwipeLike(profile: ProfileScores, movieId: number, genreIds: number[]): ProfileScores {
+  const genres = { ...profile.genres };
+  for (const id of genreIds) {
+    genres[id] = (genres[id] ?? 0) + SWIPE_LIKE_GENRE_POINTS;
+  }
+  const swipedLiked = profile.swipedLiked ?? [];
+  const nextSwipedLiked = swipedLiked.includes(movieId) ? swipedLiked : [...swipedLiked, movieId];
+  return { ...profile, genres, swipedLiked: nextSwipedLiked };
+}
+
+// Deliberately does not penalize genre scores — the algorithm only excludes
+// passed movies from future candidate pools, it doesn't punish taste signals.
+export function recordSwipeDislike(profile: ProfileScores, movieId: number): ProfileScores {
+  const swipedDisliked = profile.swipedDisliked ?? [];
+  if (swipedDisliked.includes(movieId)) return profile;
+  return { ...profile, swipedDisliked: [...swipedDisliked, movieId] };
+}
+
+export function resetSwipeDislikes(profile: ProfileScores): ProfileScores {
+  return { ...profile, swipedDisliked: [] };
+}
+
+export function excludeSwiped<T extends { id: number }>(movies: T[], profile: ProfileScores): T[] {
+  const excluded = new Set([
+    ...profile.favorites,
+    ...(profile.swipedLiked ?? []),
+    ...(profile.swipedDisliked ?? []),
+  ]);
+  return movies.filter((movie) => !excluded.has(movie.id));
 }
