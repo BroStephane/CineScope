@@ -49,6 +49,13 @@ describe('buildDiscoverQuery', () => {
       'with_runtime.lte': '120',
     });
   });
+
+  it('adds a maximum release date filter', () => {
+    expect(buildDiscoverQuery({ maxReleaseDate: '2026-07-14' })).toEqual({
+      sort_by: 'popularity.desc',
+      'primary_release_date.lte': '2026-07-14',
+    });
+  });
 });
 
 describe('tmdbImageUrl', () => {

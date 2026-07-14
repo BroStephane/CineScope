@@ -5,8 +5,8 @@ import { navIcons } from '../lib/navIcons';
 const currentPath = Astro.url.pathname;
 ---
 <nav
-  class="glass-strong fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around py-2 md:hidden"
-  style="padding-bottom: env(safe-area-inset-bottom)"
+  class="glass-strong fixed bottom-0 left-0 right-0 z-40 grid py-2 md:hidden"
+  style={`padding-bottom: env(safe-area-inset-bottom); grid-template-columns: repeat(${navItems.length}, minmax(0, 1fr))`}
   aria-label="Navigation mobile"
 >
   {navItems.map((item) => {
@@ -15,13 +15,13 @@ const currentPath = Astro.url.pathname;
     return (
       <a
         href={item.href}
-        class={`flex min-h-11 min-w-11 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-1 text-[10px] ${
+        class={`flex min-h-11 min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1 text-[9px] ${
           active ? 'glass-pill glass-pill-active text-white' : 'text-white/70'
         }`}
         aria-current={active ? 'page' : undefined}
       >
         <Icon size={20} aria-hidden="true" />
-        {item.label}
+        <span class="w-full truncate text-center">{item.label}</span>
       </a>
     );
   })}

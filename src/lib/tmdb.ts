@@ -134,6 +134,7 @@ export interface DiscoverParams {
   originalLanguage?: string;
   minRuntime?: number;
   maxRuntime?: number;
+  maxReleaseDate?: string;
 }
 
 export function buildDiscoverQuery(params: DiscoverParams): Record<string, string> {
@@ -158,6 +159,9 @@ export function buildDiscoverQuery(params: DiscoverParams): Record<string, strin
   }
   if (params.maxRuntime) {
     query['with_runtime.lte'] = String(params.maxRuntime);
+  }
+  if (params.maxReleaseDate) {
+    query['primary_release_date.lte'] = params.maxReleaseDate;
   }
   return query;
 }

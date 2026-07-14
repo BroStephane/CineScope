@@ -9,6 +9,7 @@ CineScope est une application de catalogue cinéma alimentée par l'API TMDB —
 **Explorer**
 - Accueil avec tendances du jour, films au cinéma, populaires, mieux notés et prochainement, chacun avec sa page dédiée à défilement infini.
 - Recherche texte + filtres cumulables : genres (plusieurs à la fois), année, note minimum, langue originale, durée, avec trois modes de tri (tendance, note, "pour vous").
+- Sorties : films classés par date de sortie (du plus récent au plus ancien), affichés avec synopsis et note, filtrables par genre (liste déroulante), note minimum et année.
 - Tops : mieux notés, top par genre, top de l'année.
 - Fiches réalisateur/acteur avec filmographie complète.
 
