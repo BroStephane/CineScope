@@ -137,3 +137,31 @@ export function discoverMovies(
 export function getGenres(signal?: AbortSignal): Promise<{ genres: { id: number; name: string }[] }> {
   return tmdbFetch('/genre/movie/list', {}, signal);
 }
+
+export interface TMDBPersonDetail {
+  id: number;
+  name: string;
+  biography: string;
+  profile_path: string | null;
+}
+
+export interface TMDBPersonCastCredit extends TMDBMovie {
+  character: string;
+}
+
+export interface TMDBPersonCrewCredit extends TMDBMovie {
+  job: string;
+}
+
+export interface TMDBPersonMovieCredits {
+  cast: TMDBPersonCastCredit[];
+  crew: TMDBPersonCrewCredit[];
+}
+
+export function getPersonDetail(id: number, signal?: AbortSignal): Promise<TMDBPersonDetail> {
+  return tmdbFetch(`/person/${id}`, {}, signal);
+}
+
+export function getPersonMovieCredits(id: number, signal?: AbortSignal): Promise<TMDBPersonMovieCredits> {
+  return tmdbFetch(`/person/${id}/movie_credits`, {}, signal);
+}
