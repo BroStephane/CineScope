@@ -141,6 +141,19 @@ export default function ProfileView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bestIds.join(',')]);
 
+  // Pulled from favorites + to-watch (already fetched for their own
+  // sections above) rather than a new request — just filtered to
+  // not-yet-released and sorted by nearest first.
+  const today = new Date().toISOString().slice(0, 10);
+  const upcomingMovies = [...(favoriteMovies ?? []), ...(toWatchMovies ?? [])]
+    .filter((movie, index, all) => all.findIndex((m) => m.id === movie.id) === index)
+    .filter((movie) => movie.release_date && movie.release_date > today)
+    .sort((a, b) => a.release_date.localeCompare(b.release_date));
+
+  function daysUntil(releaseDate: string): number {
+    return Math.ceil((new Date(releaseDate).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  }
+
   const sortedGenres = Object.entries(profile.genres)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 5);
@@ -251,6 +264,26 @@ export default function ProfileView() {
           ))}
         </div>
       </section>
+
+      {upcomingMovies.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">
+            Sorties à venir ({upcomingMovies.length})
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+            {upcomingMovies.map((movie) => {
+              const days = daysUntil(movie.release_date);
+              return (
+                <MovieCard
+                  key={movie.id}
+                  movie={movie}
+                  badge={days === 0 ? "Aujourd'hui" : `Dans ${days} j`}
+                />
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <section className="mt-8">
         <h2 className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.14em] text-white/50">

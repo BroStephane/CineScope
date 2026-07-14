@@ -1,4 +1,4 @@
-export type NavIconKey = 'home' | 'search' | 'compass' | 'trophy' | 'user' | 'calendar';
+export type NavIconKey = 'home' | 'search' | 'compass' | 'trophy' | 'user' | 'calendar' | 'chart';
 
 export interface NavItem {
   href: string;
@@ -16,5 +16,6 @@ export const navItems: NavItem[] = [
   { href: '/sorties', label: 'Sorties', icon: 'calendar', mobilePriority: 'secondary' },
   { href: '/decouverte', label: 'Découverte', icon: 'compass', mobilePriority: 'primary' },
   { href: '/tops', label: 'Tops', icon: 'trophy', mobilePriority: 'secondary' },
+  { href: '/stats', label: 'Stats', icon: 'chart', mobilePriority: 'secondary' },
   { href: '/profile', label: 'Profil', icon: 'user', mobilePriority: 'primary' },
 ];

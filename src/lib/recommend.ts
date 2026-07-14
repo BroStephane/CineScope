@@ -10,6 +10,12 @@ export interface ProfileScores {
   // going forward — entries swiped before this field existed have no key,
   // so "forgotten" checks treat missing entries as unknown age, not old.
   swipedLikedAt?: Record<number, number>;
+  // movieId -> timestamp (ms) it was marked watched. Same "only populated
+  // going forward" caveat as swipedLikedAt — powers stats/achievements.
+  watchedAt?: Record<number, number>;
+  // movieId -> free-text personal note. Independent of ratings (a number)
+  // so a note can exist without a rating and vice versa.
+  notes?: Record<number, string>;
 }
 
 export function createEmptyProfile(): ProfileScores {
@@ -22,6 +28,8 @@ export function createEmptyProfile(): ProfileScores {
     watched: [],
     ratings: {},
     swipedLikedAt: {},
+    watchedAt: {},
+    notes: {},
   };
 }
 
@@ -62,6 +70,13 @@ export function unfavorite(profile: ProfileScores, movieId: number): ProfileScor
 
 export function topGenres(profile: ProfileScores, count = 2): number[] {
   return Object.entries(profile.genres)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, count)
+    .map(([id]) => Number(id));
+}
+
+export function topDirectors(profile: ProfileScores, count = 1): number[] {
+  return Object.entries(profile.directors)
     .sort(([, a], [, b]) => b - a)
     .slice(0, count)
     .map(([id]) => Number(id));
@@ -135,14 +150,23 @@ const WATCHED_GENRE_POINTS = 3;
 // Between the weight of a simple detail-page view (+1, automatic on every
 // visit) and an explicit favorite (+5) — marking a movie watched is a
 // deliberate action but a lighter taste signal than favoriting it.
-export function recordWatched(profile: ProfileScores, movieId: number, genreIds: number[]): ProfileScores {
+// `timestamp` mirrors recordSwipeLike's pattern: defaults to Date.now(),
+// explicit param so tests can pin it, powers stats/achievements.
+export function recordWatched(
+  profile: ProfileScores,
+  movieId: number,
+  genreIds: number[],
+  timestamp = Date.now()
+): ProfileScores {
   const genres = { ...profile.genres };
   for (const id of genreIds) {
     genres[id] = (genres[id] ?? 0) + WATCHED_GENRE_POINTS;
   }
   const watched = profile.watched ?? [];
   const nextWatched = watched.includes(movieId) ? watched : [...watched, movieId];
-  return { ...profile, genres, watched: nextWatched };
+  const watchedAt = { ...(profile.watchedAt ?? {}) };
+  if (!(movieId in watchedAt)) watchedAt[movieId] = timestamp;
+  return { ...profile, genres, watched: nextWatched, watchedAt };
 }
 
 // Same rationale as unfavorite — doesn't reverse the genre score contribution.
@@ -186,4 +210,17 @@ export function removeRating(profile: ProfileScores, movieId: number, genreIds: 
     genres[id] = (genres[id] ?? 0) - previous;
   }
   return { ...profile, genres, ratings };
+}
+
+// A note is presentation data, not a taste signal — unlike ratings/favorites,
+// setting or clearing one never touches genre/director scores.
+export function setNote(profile: ProfileScores, movieId: number, text: string): ProfileScores {
+  const notes = { ...(profile.notes ?? {}) };
+  const trimmed = text.trim();
+  if (trimmed === '') {
+    delete notes[movieId];
+  } else {
+    notes[movieId] = trimmed;
+  }
+  return { ...profile, notes };
 }

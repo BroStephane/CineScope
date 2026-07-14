@@ -11,6 +11,7 @@ import {
   unwatch,
   recordRating,
   removeRating,
+  setNote,
   type ProfileScores,
 } from '../lib/recommend';
 import { getItem, setItem } from '../lib/storage';
@@ -41,6 +42,8 @@ function normalizeProfile(profile: ProfileScores): ProfileScores {
     watched: profile.watched ?? [],
     ratings: profile.ratings ?? {},
     swipedLikedAt: profile.swipedLikedAt ?? {},
+    watchedAt: profile.watchedAt ?? {},
+    notes: profile.notes ?? {},
   };
 }
 
@@ -125,6 +128,12 @@ export function rateMovie(movieId: number, rating: number, genreIds: number[]): 
 
 export function unrateMovie(movieId: number, genreIds: number[]): void {
   const next = removeRating(profileStore.get(), movieId, genreIds);
+  profileStore.set(next);
+  persist(next);
+}
+
+export function setMovieNote(movieId: number, text: string): void {
+  const next = setNote(profileStore.get(), movieId, text);
   profileStore.set(next);
   persist(next);
 }

@@ -5,6 +5,7 @@ import {
   recordFavorite,
   unfavorite,
   topGenres,
+  topDirectors,
   excludeFavorites,
   recordSwipeLike,
   recordSwipeDislike,
@@ -16,6 +17,7 @@ import {
   recordRating,
   removeRating,
   isForgotten,
+  setNote,
 } from '../src/lib/recommend';
 
 describe('recordView', () => {
@@ -74,6 +76,17 @@ describe('topGenres', () => {
 
   it('returns an empty array when there are no genres yet', () => {
     expect(topGenres(createEmptyProfile())).toEqual([]);
+  });
+});
+
+describe('topDirectors', () => {
+  it('returns the top N directors sorted by score descending', () => {
+    const profile = { genres: {}, directors: { 1: 3, 2: 9, 3: 5 }, favorites: [] };
+    expect(topDirectors(profile, 2)).toEqual([2, 3]);
+  });
+
+  it('returns an empty array when there are no directors yet', () => {
+    expect(topDirectors(createEmptyProfile())).toEqual([]);
   });
 });
 
@@ -183,6 +196,12 @@ describe('recordWatched', () => {
     expect(profile.watched).toEqual([400]);
     expect(profile.genres[28]).toBe(6);
   });
+
+  it('records the given timestamp under watchedAt, keeping the first one', () => {
+    let profile = recordWatched(createEmptyProfile(), 400, [28], 1000);
+    profile = recordWatched(profile, 400, [28], 9999);
+    expect(profile.watchedAt).toEqual({ 400: 1000 });
+  });
 });
 
 describe('unwatch', () => {
@@ -246,5 +265,23 @@ describe('removeRating', () => {
   it('is a no-op when the movie has no rating', () => {
     const profile = createEmptyProfile();
     expect(removeRating(profile, 999, [28])).toEqual(profile);
+  });
+});
+
+describe('setNote', () => {
+  it('stores a trimmed note under the movie id', () => {
+    const profile = setNote(createEmptyProfile(), 700, '  Great cinematography  ');
+    expect(profile.notes).toEqual({ 700: 'Great cinematography' });
+  });
+
+  it('does not touch genre scores', () => {
+    const profile = setNote(createEmptyProfile(), 700, 'Note');
+    expect(profile.genres).toEqual({});
+  });
+
+  it('deletes the note when set to an empty (or whitespace-only) string', () => {
+    let profile = setNote(createEmptyProfile(), 700, 'Note');
+    profile = setNote(profile, 700, '   ');
+    expect(profile.notes).toEqual({});
   });
 });

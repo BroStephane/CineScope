@@ -14,6 +14,15 @@ export async function getToWatchMovies(profile: ProfileScores): Promise<TMDBMovi
     .map((r) => r.value);
 }
 
+// Full detail for every watched movie — used by stats/achievements, which
+// need runtime and release_date, not just the bare ids profile.watched holds.
+export async function getWatchedMovies(profile: ProfileScores): Promise<TMDBMovieDetail[]> {
+  const results = await Promise.allSettled((profile.watched ?? []).map((id) => getMovieDetail(id)));
+  return results
+    .filter((r): r is PromiseFulfilledResult<TMDBMovieDetail> => r.status === 'fulfilled')
+    .map((r) => r.value);
+}
+
 // Picks one movie at random, weighting toward the user's top genres so
 // "surprise me" leans on known taste without being fully deterministic.
 // `random` is injectable so callers/tests can pin the outcome.

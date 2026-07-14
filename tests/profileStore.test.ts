@@ -30,6 +30,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 
@@ -45,6 +47,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 
@@ -106,6 +110,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 
@@ -124,6 +130,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 
@@ -201,6 +209,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 
@@ -253,6 +263,8 @@ describe('profileStore', () => {
       watched: [],
       ratings: {},
       swipedLikedAt: {},
+      watchedAt: {},
+      notes: {},
     });
   });
 });

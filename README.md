@@ -25,7 +25,12 @@ CineScope est une application de catalogue cinéma alimentée par l'API TMDB —
 - Badge "Oublié depuis longtemps" sur les films de votre liste "à voir" jamais regardés après un moment.
 
 **Se souvenir**
-- Favoris, historique des films vus, notes personnelles (1 à 5 étoiles) et "Mes meilleurs films" (vos coups de cœur 4-5★), le tout consultable et modifiable depuis votre profil.
+- Favoris, historique des films vus, notes en étoiles (1 à 5) et "Mes meilleurs films" (vos coups de cœur 4-5★), le tout consultable et modifiable depuis votre profil.
+- Notes personnelles en texte libre sur chaque fiche film (vos impressions, une scène marquante…), sauvegardées automatiquement.
+- Sorties à venir : les films de vos favoris/liste "à voir" pas encore sortis, avec un compte à rebours, sur votre profil.
+- Mes stats ciné : films vus, temps total passé, genre et réalisateur favoris, décennie préférée, "êtes-vous plus sévère ou indulgent que la moyenne TMDB", backlog restant à voir.
+- Succès à débloquer (Cinéphile, Explorateur de genres, Critique, Archéologue…) basés sur votre activité.
+- Carte ciné partageable : une image récapitulant vos goûts, à télécharger ou partager.
 - Sauvegarde manuelle : exportez/importez vos données en JSON pour les transférer d'un appareil à l'autre.
 - Application installable (PWA), avec vos favoris disponibles hors-ligne.
 

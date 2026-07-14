@@ -1,4 +1,4 @@
-import { Home, Search, Compass, Trophy, User, Calendar } from 'lucide-react';
+import { Home, Search, Compass, Trophy, User, Calendar, BarChart3 } from 'lucide-react';
 import type { NavIconKey } from './navItems';
 
 export const navIcons: Record<NavIconKey, typeof Home> = {
@@ -8,4 +8,5 @@ export const navIcons: Record<NavIconKey, typeof Home> = {
   trophy: Trophy,
   user: User,
   calendar: Calendar,
+  chart: BarChart3,
 };

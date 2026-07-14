@@ -20,6 +20,7 @@ import {
   unmarkWatched,
   rateMovie,
   unrateMovie,
+  setMovieNote,
 } from '../stores/profileStore';
 import {
   cacheFavoritePoster,
@@ -55,6 +56,7 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
   const [error, setError] = useState(false);
   const [collectionParts, setCollectionParts] = useState<TMDBMovie[]>([]);
   const [shareConfirmed, setShareConfirmed] = useState(false);
+  const [noteDraft, setNoteDraft] = useState('');
   const isFavorite = movie ? profile.favorites.includes(movie.id) : false;
   const isWatched = movie ? (profile.watched ?? []).includes(movie.id) : false;
   const rating = movie ? (profile.ratings?.[movie.id] ?? 0) : 0;
@@ -74,6 +76,17 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
       cancelled = true;
     };
   }, [movieId]);
+
+  useEffect(() => {
+    if (movie) setNoteDraft(profileStore.get().notes?.[movie.id] ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [movie?.id]);
+
+  useEffect(() => {
+    if (!movie) return;
+    const timeout = setTimeout(() => setMovieNote(movie.id, noteDraft), 600);
+    return () => clearTimeout(timeout);
+  }, [noteDraft, movie?.id]);
 
   useEffect(() => {
     if (!movie?.belongs_to_collection) {
@@ -295,6 +308,20 @@ export default function MovieDetail({ movieId }: { movieId: number }) {
         )}
 
         <p className="mt-6 max-w-2xl text-white/80 md:max-w-3xl">{movie.overview}</p>
+
+        <div className="mt-6 max-w-2xl md:max-w-3xl">
+          <label htmlFor="movie-note" className="mb-2 block text-xs uppercase tracking-wide text-white/50">
+            Vos notes personnelles
+          </label>
+          <textarea
+            id="movie-note"
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            placeholder="Ce que vous avez pensé de ce film, une scène marquante…"
+            rows={3}
+            className="glass-input w-full rounded-2xl px-4 py-3 text-sm text-white/90 placeholder:text-white/40"
+          />
+        </div>
 
         {hasWatchProviders && watchProviders && (
           <section className="mt-8">

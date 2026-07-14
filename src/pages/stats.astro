@@ -1,0 +1,7 @@
+---
+import Layout from '../components/Layout.astro';
+import StatsView from '../islands/StatsView';
+---
+<Layout title="Mes stats">
+  <StatsView client:only="react" />
+</Layout>
